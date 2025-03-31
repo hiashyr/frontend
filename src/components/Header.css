@@ -1,0 +1,110 @@
+/* Базовые стили */
+.header {
+  background-color: #330570;
+  padding: 1rem 0;
+  position: relative;
+  overflow: hidden; /* Фикс для выпадающих элементов */
+}
+
+.container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+/* Логотип */
+.logo {
+  display: flex;
+  align-items: center;
+  color: white;
+  font-weight: 700;
+  font-size: 1.5rem;
+  text-decoration: none;
+  min-width: 120px; /* Фикс для маленьких экранов */
+}
+
+/* Навигация */
+.nav {
+  display: flex;
+  gap: 15px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.nav-link {
+  display: flex;
+  align-items: center;
+  color: white !important;
+  text-decoration: none;
+  padding: 8px 12px;
+  border-radius: 4px;
+  transition: 0.3s !important;
+}
+
+.nav-link:hover {
+  transform: translateY(-2px);
+}
+
+/* Иконки и текст */
+.nav-icon {
+  font-size: 1.3rem;
+  color: #66A3D2;
+  flex-shrink: 0;
+  transition: 0.3s;
+}
+
+.nav-icon:hover {
+  transform: scale(1.15);
+}
+
+.nav-text {
+  margin-left: 8px;
+}
+
+/* Адаптивность */
+@media (max-width: 992px) {
+  /* Средние экраны - уменьшаем отступы */
+  .nav {
+    gap: 10px;
+  }
+  
+  .nav-text {
+    font-size: 0.9rem;
+  }
+}
+
+@media (max-width: 768px) {
+  /* Мобильные - оставляем только иконки */
+  .nav-text {
+    display: none;
+  }
+  
+  .nav-link {
+    padding: 8px;
+  }
+  
+  .logo-text {
+    font-size: 1.3rem; /* Уменьшаем лого */
+  }
+}
+
+@media (max-width: 480px) {
+  /* Очень маленькие экраны */
+  .container {
+    padding: 0 10px;
+  }
+  
+  .logo-text {
+    font-size: 1.1rem;
+    white-space: nowrap;
+  }
+  
+  .nav-icon {
+    font-size: 1.1rem;
+  }
+}

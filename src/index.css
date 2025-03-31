@@ -1,13 +1,29 @@
-body {
-  margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+/* Переменные цветов */
+:root {
+  --primary: #1B1BB3;
+  --secondary: #330570;
+  --accent: #66A3D2;
+  --bg: #F8FAFC;
+  --text: #2D3748;
 }
 
-code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
-    monospace;
+/* Базовые стили */
+body {
+  font-family: 'DM Sans', sans-serif;
+  margin: 0;
+  background-color: var(--bg);
+  color: var(--text);
+}
+
+/* Типографика */
+h1 {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: var(--secondary);
+}
+
+h2 {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--primary);
 }
