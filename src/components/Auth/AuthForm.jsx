@@ -1,5 +1,7 @@
 import { Link } from 'react-router-dom';
-import pddBackground from '../../assets/pdd-background.jpg'; // Импортируем фоновое изображение
+import { useState } from 'react';
+import { FaCheck, FaTimes, FaEye, FaEyeSlash } from 'react-icons/fa';
+import pddBackground from '../../assets/pdd-background.jpg';
 import '../../pages/AuthPage.css';
 
 export default function AuthForm({
@@ -10,37 +12,60 @@ export default function AuthForm({
   onSubmit,
   linkText,
   linkPath,
-  linkDescription
+  linkDescription,
+  isLoading = false
 }) {
   return (
     <div className="auth-page-container">
-      {/* Размытый задний фон */}
       <div 
         className="auth-background" 
         style={{ backgroundImage: `url(${pddBackground})` }}
       ></div>
       
-      {/* Контейнер с формой */}
       <div className="auth-form-container">
         <div className="auth-form">
           <h2>{title}</h2>
           <form onSubmit={onSubmit}>
             {fields.map((field) => (
-              <input
-                key={field.name}
-                type={field.type}
-                name={field.name}
-                placeholder={field.placeholder}
-                value={field.value}
-                onChange={field.onChange}
-                required={field.required}
-                minLength={field.minLength}
-              />
+              <div key={field.name} className="form-group">
+                <input
+                  type={field.type}
+                  name={field.name}
+                  placeholder={field.placeholder}
+                  value={field.value}
+                  onChange={field.onChange}
+                  required={field.required}
+                  minLength={field.minLength}
+                  disabled={isLoading}
+                  className={field.error ? 'invalid' : ''}
+                />
+                {field.value && (
+                  <span className="validation-icon">
+                    {field.isValid ? (
+                      <FaCheck className="valid-icon" />
+                    ) : (
+                      <FaTimes className="invalid-icon" />
+                    )}
+                  </span>
+                )}
+                {field.error && (
+                  <div className="field-error">{field.error}</div>
+                )}
+              </div>
             ))}
-            {error && <div className="error">{error}</div>}
-            <button type="submit" className="btn">{submitText}</button>
+            
+            {error && <div className="form-error">{error}</div>}
+            
+            <button 
+              type="submit" 
+              className="submit-button"
+              disabled={isLoading || fields.some(f => f.value && !f.isValid)}
+            >
+              {isLoading ? 'Загрузка...' : submitText}
+            </button>
           </form>
-          <p>
+          
+          <p className="auth-link">
             {linkDescription} <Link to={linkPath}>{linkText}</Link>
           </p>
         </div>
