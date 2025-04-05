@@ -120,6 +120,7 @@ export default function LoginPage() {
       linkText="Зарегистрируйтесь"
       linkPath="/register"
       isLoading={isLoading}
+      showForgotPassword={true} // Включаем отображение ссылки
     />
   );
 }

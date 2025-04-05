@@ -13,7 +13,8 @@ export default function AuthForm({
   linkText,
   linkPath,
   linkDescription,
-  isLoading = false
+  isLoading = false,
+  showForgotPassword = false // Новый пропс для отображения ссылки
 }) {
   return (
     <div className="auth-page-container">
@@ -53,13 +54,19 @@ export default function AuthForm({
                 )}
               </div>
             ))}
+
+            {showForgotPassword && (
+              <div className="forgot-password-link">
+                <Link to="/forgot-password">Забыли пароль?</Link>
+              </div>
+            )}
             
             {error && <div className="form-error">{error}</div>}
             
             <button 
               type="submit" 
               className="submit-button"
-              disabled={isLoading || fields.some(f => f.value && !f.isValid)}
+              disabled={isLoading || fields.some(f => f.required && (!f.value || (f.isValid !== undefined && !f.isValid)))}
             >
               {isLoading ? 'Загрузка...' : submitText}
             </button>
