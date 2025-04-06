@@ -3,8 +3,10 @@ import { useNavigate } from 'react-router-dom';
 import API from '../services/api';
 import AuthForm from '../components/Auth/AuthForm';
 import './AuthPage.css';
+import { useAuth } from '../contexts/AuthContext';
 
 export default function LoginPage() {
+  const { login } = useAuth();
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
     email: '',
@@ -89,21 +91,41 @@ export default function LoginPage() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!validateForm()) return;
-
+  
     setIsLoading(true);
     try {
       const { data } = await API.post('/users/login', {
         email: formData.email,
         password: formData.password
       });
+      
+      // Сохраняем токен
       localStorage.setItem('token', data.token);
-      navigate('/', { replace: true });
+      
+      // Обновляем состояние аутентификации через контекст
+      login(data.user, data.token);
+      
+      // Редирект будет выполнен автоматически в AuthProvider
+      // Можно добавить дополнительное действие после успешного входа:
+      if (data.user.role === 'admin') {
+        console.log('Администратор вошел в систему');
+      } else {
+        console.log('Пользователь вошел в систему');
+      }
+      
     } catch (err) {
       console.error('Login error:', err);
-      setError(
-        err.response?.data?.message ||
-        'Неверный email или пароль'
-      );
+      
+      // Улучшенная обработка ошибок
+      const errorMessage = err.response?.data?.error === 'INVALID_CREDENTIALS'
+        ? 'Неверный email или пароль'
+        : err.response?.data?.message || 'Ошибка при входе в систему';
+      
+      setError(errorMessage);
+      
+      // Сбрасываем пароль при ошибке
+      setFormData(prev => ({ ...prev, password: '' }));
+      
     } finally {
       setIsLoading(false);
     }
@@ -120,7 +142,8 @@ export default function LoginPage() {
       linkText="Зарегистрируйтесь"
       linkPath="/register"
       isLoading={isLoading}
-      showForgotPassword={true} // Включаем отображение ссылки
+      showForgotPassword={true}
+      emailError={formData.emailError}
     />
   );
 }

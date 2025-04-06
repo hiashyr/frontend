@@ -95,7 +95,7 @@ export default function RegisterPage() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!validateForm()) return;
-
+  
     setIsLoading(true);
     try {
       const response = await API.post('/users/register', {
@@ -111,11 +111,21 @@ export default function RegisterPage() {
       }
     } catch (err) {
       console.error('Registration error:', err);
-      setError(
-        err.response?.data?.message ||
-        err.message ||
-        'Ошибка регистрации'
-      );
+      
+      // Обработка ошибки существующего email
+      if (err.response?.data?.error === 'REGISTRATION_ERROR') {
+        setError(err.response.data.message);
+        
+        // Подсвечиваем конкретное поле с ошибкой
+        setFormData(prev => ({
+          ...prev,
+          emailError: err.response.data.field === 'email' 
+            ? err.response.data.message 
+            : null
+        }));
+      } else {
+        setError(err.response?.data?.message || 'Ошибка регистрации');
+      }
     } finally {
       setIsLoading(false);
     }
@@ -132,7 +142,6 @@ export default function RegisterPage() {
       linkText="Войдите"
       linkPath="/login"
       isLoading={isLoading}
-      
     />
   );
 }

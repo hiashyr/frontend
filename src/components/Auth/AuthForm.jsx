@@ -14,7 +14,8 @@ export default function AuthForm({
   linkPath,
   linkDescription,
   isLoading = false,
-  showForgotPassword = false // Новый пропс для отображения ссылки
+  showForgotPassword = false,
+  emailError = null // Добавляем новый пропс для ошибки email
 }) {
   return (
     <div className="auth-page-container">
@@ -50,7 +51,11 @@ export default function AuthForm({
                   </span>
                 )}
                 {field.error && (
-                  <div className="field-error">{field.error}</div>
+                  <div className="field-error">
+                    {field.name === 'email' && emailError
+                      ? emailError
+                      : field.error}
+                  </div>
                 )}
               </div>
             ))}

@@ -1,7 +1,8 @@
 import { useState } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useNavigate, useSearchParams, Link } from 'react-router-dom';
 import API from '../services/api';
 import AuthForm from '../components/Auth/AuthForm';
+import pddBackground from '../assets/pdd-background.jpg';
 import './AuthPage.css';
 
 export default function ResetPasswordPage() {
@@ -46,12 +47,19 @@ export default function ResetPasswordPage() {
   if (success) {
     return (
       <div className="auth-page-container">
+        {/* Добавляем фон */}
+        <div 
+          className="auth-background" 
+          style={{ backgroundImage: `url(${pddBackground})` }}
+        ></div>
+        
         <div className="auth-form-container">
           <div className="auth-form">
             <h2>Пароль успешно изменен!</h2>
             <div className="success-message">
               <p>Вы будете перенаправлены на страницу входа через 3 секунды...</p>
               <div className="success-animation">✓</div>
+              <Link to="/login" className="back-to-login">Перейти сейчас</Link>
             </div>
           </div>
         </div>
