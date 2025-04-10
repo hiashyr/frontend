@@ -1,38 +1,28 @@
-import axios from 'axios';
+import axios, { AxiosInstance, InternalAxiosRequestConfig } from 'axios';
 
-const API = axios.create({
-  baseURL: 'http://localhost:5000/api',
-  timeout: 10000,
-  headers: {
-    'Content-Type': 'application/json',
-  },
+const API: AxiosInstance = axios.create({
+  baseURL: process.env.REACT_APP_API_URL || 'http://localhost:5000/api',
+  withCredentials: true,
 });
 
-// Интерцептор для добавления токена (без явных типов)
-API.interceptors.request.use((config) => {
+// Интерцептор для добавления токена с правильными типами
+API.interceptors.request.use((config: InternalAxiosRequestConfig) => {
   const token = localStorage.getItem('token');
   if (token) {
-    // Создаем новый объект конфига с обновленными headers
-    return {
-      ...config,
-      headers: {
-        ...config.headers,
-        Authorization: `Bearer ${token}`, 
-      } as Record<string, unknown> // Явное приведение типа
-    };
+    config.headers = config.headers || {};
+    config.headers.Authorization = `Bearer ${token}`;
   }
   return config;
 });
 
-// Обработка ошибок
+// Интерцептор для обработки ошибок
 API.interceptors.response.use(
-  (response) => response,
-  (error) => {
+  response => response,
+  error => {
     if (error.response?.status === 401) {
-      localStorage.removeItem('token');
-      window.location.href = '/login';
+      return Promise.reject(new Error('Неверный email или пароль'));
     }
-    return Promise.reject(error.response?.data || error);
+    return Promise.reject(error);
   }
 );
 

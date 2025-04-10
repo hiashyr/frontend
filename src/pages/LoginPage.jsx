@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import API from '../services/api';
 import AuthForm from '../components/Auth/AuthForm';
@@ -12,52 +12,54 @@ export default function LoginPage() {
     email: '',
     password: ''
   });
-
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
-  useEffect(() => {
-    const verifyToken = async () => {
-      try {
-        await API.get('/users/me');
-        navigate('/');
-      } catch {
-        localStorage.removeItem('token');
-      }
-    };
+  const handleSubmit = async (e) => {
+    e.preventDefault(); // Важно: предотвращаем перезагрузку
     
-    if (localStorage.getItem('token')) {
-      verifyToken();
-    }
-  }, [navigate]);
-
-  const validateField = (name, value) => {
-    switch (name) {
-      case 'email':
-        return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
-      case 'password':
-        return value.length >= 6;
-      default:
-        return false;
-    }
-  };
-
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
-    setError('');
-  };
-
-  const validateForm = () => {
-    if (!validateField('email', formData.email)) {
+    // Валидация
+    if (!formData.email.includes('@')) {
       setError('Введите корректный email');
-      return false;
+      return;
     }
-    if (!validateField('password', formData.password)) {
+    if (formData.password.length < 6) {
       setError('Пароль должен содержать минимум 6 символов');
-      return false;
+      return;
     }
-    return true;
+
+    setIsLoading(true);
+    setError('');
+
+    try {
+      const { data } = await API.post('/users/login', {
+        email: formData.email,
+        password: formData.password
+      });
+
+      if (!data?.token || !data?.user) {
+        throw new Error('Ошибка сервера: неверный формат ответа');
+      }
+
+      // Сохраняем данные и делаем редирект
+      login(data.token, data.user);
+      
+      // Для администратора
+      if (data.user.role === 'admin') {
+        window.location.href = '/admin/dashboard'; // Жёсткий редирект
+        return;
+      }
+      
+      // Для обычных пользователей
+      navigate('/', { replace: true });
+
+    } catch (err) {
+      console.error('Ошибка авторизации:', err);
+      setError(err.response?.data?.message || 'Неверные учетные данные');
+      setFormData(prev => ({ ...prev, password: '' }));
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const fields = [
@@ -66,70 +68,19 @@ export default function LoginPage() {
       type: 'email',
       placeholder: 'Email',
       value: formData.email,
-      onChange: handleChange,
-      required: true,
-      isValid: validateField('email', formData.email),
-      error: formData.email && !validateField('email', formData.email)
-        ? 'Некорректный email'
-        : null
+      onChange: (e) => setFormData({...formData, email: e.target.value}),
+      required: true
     },
     {
       name: 'password',
       type: 'password',
       placeholder: 'Пароль',
       value: formData.password,
-      onChange: handleChange,
+      onChange: (e) => setFormData({...formData, password: e.target.value}),
       required: true,
-      minLength: 6,
-      isValid: validateField('password', formData.password),
-      error: formData.password && !validateField('password', formData.password)
-        ? 'Пароль слишком короткий'
-        : null
+      minLength: 6
     }
   ];
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    if (!validateForm()) return;
-  
-    setIsLoading(true);
-    try {
-      const { data } = await API.post('/users/login', {
-        email: formData.email,
-        password: formData.password
-      });
-      
-      // Сохраняем токен
-      localStorage.setItem('token', data.token);
-      
-      // Обновляем состояние аутентификации через контекст
-      login(data.user, data.token);
-      
-      // Редирект будет выполнен автоматически в AuthProvider
-      // Можно добавить дополнительное действие после успешного входа:
-      if (data.user.role === 'admin') {
-        console.log('Администратор вошел в систему');
-      } else {
-        console.log('Пользователь вошел в систему');
-      }
-      
-    } catch (err) {
-      console.error('Login error:', err);
-      
-      // Улучшенная обработка ошибок
-      const errorMessage = err.response?.data?.error === 'INVALID_CREDENTIALS'
-        ? 'Неверный email или пароль'
-        : err.response?.data?.message || 'Ошибка при входе в систему';
-      
-      setError(errorMessage);
-      
-      // Сбрасываем пароль при ошибке
-      setFormData(prev => ({ ...prev, password: '' }));
-      
-    } finally {
-      setIsLoading(false);
-    }
-  };
 
   return (
     <AuthForm
@@ -143,7 +94,6 @@ export default function LoginPage() {
       linkPath="/register"
       isLoading={isLoading}
       showForgotPassword={true}
-      emailError={formData.emailError}
     />
   );
 }
