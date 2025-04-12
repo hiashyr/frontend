@@ -12,6 +12,7 @@ interface AuthContextType {
   user: User | null;
   login: (token: string, userData: User) => void;
   logout: () => void;
+  isLoading: boolean; // Добавляем в контекст
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -21,7 +22,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [isLoading, setIsLoading] = useState(true);
   const navigate = useNavigate();
 
-  // Проверка аутентификации при загрузке
   useEffect(() => {
     const verifyAuth = async () => {
       const token = localStorage.getItem('token');
@@ -29,42 +29,45 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setIsLoading(false);
         return;
       }
-
+  
       try {
         const { data } = await API.get('/users/me');
-        setUser(data);
         
-        // Автоматический редирект для администратора
-        if (data.role === 'admin' && window.location.pathname !== '/admin/dashboard') {
-          navigate('/admin/dashboard', { replace: true });
+        // Добавьте строгую проверку данных
+        if (!data?.id || !data?.role) {
+          throw new Error('Invalid user data structure');
         }
+        
+        setUser(data);
       } catch (err) {
+        console.error('Auth verification failed:', err);
         localStorage.removeItem('token');
+        setUser(null);
+        
+        // Принудительный редирект на логин при ошибке
+        navigate('/login', { replace: true });
       } finally {
         setIsLoading(false);
       }
     };
-
+  
     verifyAuth();
   }, [navigate]);
 
   const login = (token: string, userData: User) => {
     localStorage.setItem('token', token);
     setUser(userData);
-    // Не делаем редирект здесь, только в LoginPage
   };
+
   const logout = () => {
     localStorage.removeItem('token');
     setUser(null);
     navigate('/login');
   };
 
-  if (isLoading) {
-    return <div>Loading...</div>;
-  }
-
+  // Убираем проверку isLoading здесь, переносим в роуты
   return (
-    <AuthContext.Provider value={{ user, login, logout }}>
+    <AuthContext.Provider value={{ user, login, logout, isLoading }}>
       {children}
     </AuthContext.Provider>
   );

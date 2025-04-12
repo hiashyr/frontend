@@ -1,23 +1,23 @@
+import { useEffect } from 'react';
 import { Navigate, Outlet, useLocation } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import AdminSidebar from '../components/admin/AdminSidebar';
-import { useEffect, useState } from 'react';
+import LoadingSpinner from '../components/LoadingSpinner'; // Импортируем наш спиннер
 
 export default function AdminLayout() {
-  const { user } = useAuth();
-  const [isChecking, setIsChecking] = useState(true);
-  const location = useLocation(); // Правильный импорт location
+  const { user, isLoading } = useAuth();
+  const location = useLocation();
 
   useEffect(() => {
-    const timer = setTimeout(() => setIsChecking(false), 100);
-    return () => clearTimeout(timer);
-  }, []);
+    if (!isLoading && user?.role !== 'admin') {
+      console.log('Access denied for:', user);
+    }
+  }, [user, isLoading]);
 
-  if (isChecking) {
-    return <div className="loading-spinner">Загрузка...</div>;
-  }
-
-  if (!user) {
+  if (isLoading) return <LoadingSpinner fullPage />;
+  
+  if (!user || !user.role) {
+    console.error('User data missing:', user);
     return <Navigate to="/login" state={{ from: location }} replace />;
   }
 

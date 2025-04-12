@@ -1,0 +1,43 @@
+/* Дополним существующие стили футера */
+
+/* Увеличим базовый размер иконок */
+.footer-icon {
+    color: #a78bfa;
+    flex-shrink: 0;
+    margin-right: 8px;
+    font-size: 1.3rem; /* Новый базовый размер */
+  }
+  
+  /* Скрываем текст в футер-ссылках на мобильных */
+  @media (max-width: 768px) {
+    .footer-link span {
+      display: none;
+    }
+    
+    .footer-item p {
+      display: none;
+    }
+    
+    /* Увеличиваем иконки для мобильных */
+    .footer-icon {
+      font-size: 1.5rem;
+      margin-right: 0;
+    }
+    
+    /* Центрируем иконки */
+    .footer-link {
+      display: flex;
+      justify-content: center;
+      padding: 8px;
+    }
+    
+    /* Делаем колонки более компактными */
+    .footer-column {
+      gap: 1.5rem;
+    }
+    
+    /* Логотип оставляем видимым */
+    .footer-logo, .footer-item:first-child p {
+      display: block;
+    }
+  }
