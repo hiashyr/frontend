@@ -1,0 +1,38 @@
+.verify-email-container {
+    max-width: 600px;
+    margin: 2rem auto;
+    padding: 2rem;
+    text-align: center;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  }
+  
+  .verify-email-container.success {
+    background-color: #f0fff4;
+    border: 1px solid #68d391;
+  }
+  
+  .verify-email-container.error {
+    background-color: #fff5f5;
+    border: 1px solid #fc8181;
+  }
+  
+  .success-icon {
+    font-size: 4rem;
+    color: #38a169;
+    margin-bottom: 1rem;
+  }
+  
+  .resend-button {
+    background-color: #3182ce;
+    color: white;
+    padding: 0.5rem 1rem;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-top: 1rem;
+  }
+  
+  .resend-button:hover {
+    background-color: #2c5282;
+  }
