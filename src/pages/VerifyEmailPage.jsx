@@ -1,35 +1,59 @@
-import { useEffect, useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useEffect, useState, useRef } from 'react';
+import { useSearchParams, useNavigate } from 'react-router-dom';
 import API from '../services/api';
 import LoadingSpinner from '../components/LoadingSpinner';
 import './VerifyEmailPage.css';
 
 export default function VerifyEmailPage() {
-  const { token } = useParams();
+  const [searchParams] = useSearchParams();
+  const token = searchParams.get('token');
   const navigate = useNavigate();
-  const [status, setStatus] = useState('loading'); // 'loading', 'success', 'error'
-  const [errorMessage, setErrorMessage] = useState('');
+  const [status, setStatus] = useState('loading'); // 'loading', 'success', 'error', 'already_verified'
+  const [message, setMessage] = useState('');
+  const [countdown, setCountdown] = useState(5);
+  const [email, setEmail] = useState('');
 
   useEffect(() => {
+    if (!token) {
+      setStatus('error');
+      setMessage('Ссылка подтверждения не содержит токена');
+      return;
+    }
+  
     const verifyEmail = async () => {
       try {
-        await API.get(`/auth/verify-email/${token}`);
-        setStatus('success');
+        const response = await API.post('/auth/verify-email', { token });
         
-        // Перенаправляем на страницу входа через 3 секунды
-        setTimeout(() => navigate('/login', { 
-          state: { emailVerified: true } 
-        }), 3000);
+        if (response.data.success) {
+          setStatus(response.data.alreadyVerified ? 'already_verified' : 'success');
+          setMessage(response.data.message);
+          setEmail(response.data.email || '');
+  
+          const timer = setTimeout(() => {
+            navigate('/login', { 
+              state: { 
+                emailVerified: true,
+                email: response.data.email,
+                message: response.data.message
+              },
+              replace: true
+            });
+          }, 3000);
+  
+          return () => clearTimeout(timer);
+        }
       } catch (error) {
+        console.error('Verification error:', error);
+        
+        const serverMessage = error.response?.data?.error;
+        const defaultMessage = 'Не удалось подтвердить email';
+        
         setStatus('error');
-        setErrorMessage(
-          error.response?.data?.error || 
-          'Не удалось подтвердить email. Пожалуйста, запросите новое письмо.'
-        );
+        setMessage(serverMessage || defaultMessage);
       }
     };
-
-    if (token) verifyEmail();
+  
+    verifyEmail();
   }, [token, navigate]);
 
   if (status === 'loading') {
@@ -45,13 +69,31 @@ export default function VerifyEmailPage() {
     return (
       <div className="verify-email-container error">
         <h2>Ошибка подтверждения</h2>
-        <p>{errorMessage}</p>
-        <button 
-          onClick={() => navigate('/resend-verification')}
-          className="resend-button"
-        >
-          Отправить письмо повторно
-        </button>
+        <p>{message}</p>
+        <div className="button-group">
+          <button 
+            onClick={() => navigate('/resend-verification')}
+            className="resend-button"
+          >
+            Отправить письмо повторно
+          </button>
+          <button 
+            onClick={() => navigate('/login', { replace: true })}
+            className="secondary-button"
+          >
+            Перейти на страницу входа
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  if (status === 'already_verified') {
+    return (
+      <div className="verify-email-container info">
+        <div className="info-icon">ℹ</div>
+        <h2>{message}</h2>
+        <p>Вы будете перенаправлены на страницу входа...</p>
       </div>
     );
   }
@@ -60,7 +102,17 @@ export default function VerifyEmailPage() {
     <div className="verify-email-container success">
       <div className="success-icon">✓</div>
       <h2>Email успешно подтверждён!</h2>
-      <p>Вы будете перенаправлены на страницу входа...</p>
+      {email && <p>Аккаунт: {email}</p>}
+      <p>Перенаправление через {countdown} секунд...</p>
+      <button 
+        onClick={() => navigate('/login', { 
+          state: { emailVerified: true, email },
+          replace: true
+        })}
+        className="primary-button"
+      >
+        Перейти сейчас
+      </button>
     </div>
   );
 }

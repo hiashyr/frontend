@@ -61,61 +61,110 @@ export default function LoginPage() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     
-    // Проверяем, были ли поля touched
-    const newTouched = {
+    // Помечаем поля как touched
+    setTouched({
       email: true,
       password: true
-    };
-    setTouched(newTouched);
-
-    // Валидация перед отправкой
-    const isValid = validateEmail(formData.email) && formData.password.length >= 6;
+    });
+  
+    // Валидация полей
+    const emailError = !formData.email 
+      ? 'Email обязателен' 
+      : !validateEmail(formData.email) 
+        ? 'Введите корректный email' 
+        : '';
     
-    if (!isValid) {
+    const passwordError = !formData.password 
+      ? 'Пароль обязателен' 
+      : formData.password.length < 6 
+        ? 'Пароль должен содержать минимум 6 символов' 
+        : '';
+  
+    if (emailError || passwordError) {
       setFieldErrors({
-        email: formData.email 
-          ? validateEmail(formData.email) 
-            ? '' 
-            : 'Введите корректный email'
-          : 'Email обязателен',
-        password: formData.password 
-          ? formData.password.length >= 6 
-            ? '' 
-            : 'Пароль должен содержать минимум 6 символов'
-          : 'Пароль обязателен'
+        email: emailError,
+        password: passwordError
       });
       return;
     }
-
+  
     setIsLoading(true);
     setFormError('');
-
+    setFieldErrors({ email: '', password: '' });
+  
     try {
       const { data } = await API.post('/users/login', {
-        email: formData.email,
+        email: formData.email.trim(), // Удаляем пробелы
         password: formData.password
       });
   
-      // Усиленная проверка ответа
-      if (!data?.token || !data?.user?.id || !data?.user?.role) {
-        throw new Error('Неверный формат ответа сервера');
+      // Расширенная проверка ответа сервера
+      if (!data?.token || !data?.user) {
+        throw new Error('Неполные данные от сервера');
       }
   
+      const requiredUserFields = ['id', 'email', 'role'];
+      const missingFields = requiredUserFields.filter(field => !data.user[field]);
+      
+      if (missingFields.length > 0) {
+        throw new Error(`Отсутствуют обязательные поля: ${missingFields.join(', ')}`);
+      }
+  
+      // Сохраняем данные авторизации
       login(data.token, data.user);
       
-      // Двойная проверка роли
-      const isAdmin = data.user.role === 'admin';
-      console.log('Role after login:', data.user.role); // Логируем роль
+      // Логирование для отладки
+      console.log('Успешная авторизация:', {
+        user: data.user.email,
+        role: data.user.role,
+        time: new Date().toISOString()
+      });
+  
+      // Перенаправление с учетом роли
+      const redirectPath = data.user.role === 'admin' 
+        ? '/admin/dashboard' 
+        : '/';
       
-      navigate(isAdmin ? '/admin/dashboard' : '/', { 
+      navigate(redirectPath, {
         replace: true,
-        state: { forceReload: isAdmin } // Для принудительного обновления
+        state: { 
+          fromLogin: true,
+          userData: data.user 
+        }
       });
   
     } catch (err) {
-      console.error('Ошибка авторизации:', err);
-      setFormError(err.response?.data?.message || 'Неверные учетные данные');
+      console.error('Ошибка авторизации:', {
+        error: err,
+        time: new Date().toISOString(),
+        email: formData.email
+      });
+  
+      // Расширенная обработка ошибок
+      const serverError = err.response?.data;
+      
+      if (serverError?.error === 'EMAIL_NOT_VERIFIED') {
+        navigate('/verify-email', {
+          state: { 
+            email: formData.email,
+            canResend: true
+          }
+        });
+      } else if (serverError?.field) {
+        setFieldErrors({
+          [serverError.field]: serverError.message || 'Ошибка при вводе'
+        });
+      } else {
+        setFormError(
+          serverError?.message || 
+          err.message || 
+          'Ошибка при авторизации. Попробуйте позже'
+        );
+      }
+  
+      // Сброс пароля в форме
       setFormData(prev => ({ ...prev, password: '' }));
+  
     } finally {
       setIsLoading(false);
     }
