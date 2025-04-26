@@ -1,7 +1,8 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import API from '../services/api';
 import AuthForm from '../components/Auth/AuthForm';
+import pddBackground from '../assets/pdd-background.jpg';
 import './AuthPage.css';
 
 export default function RegisterPage() {
@@ -14,6 +15,9 @@ export default function RegisterPage() {
 
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [registrationSuccess, setRegistrationSuccess] = useState(false);
+  const [registeredEmail, setRegisteredEmail] = useState('');
+  const [countdown, setCountdown] = useState(5);
 
   const validateField = (name, value) => {
     switch (name) {
@@ -104,19 +108,32 @@ export default function RegisterPage() {
       });
       
       if (response.status === 201) {
-        navigate('/login', { 
-          state: { fromRegistration: true },
-          replace: true
-        });
+        setRegistrationSuccess(true);
+        setRegisteredEmail(formData.email);
+        
+        // Запускаем обратный отсчет
+        const timer = setInterval(() => {
+          setCountdown(prev => {
+            if (prev <= 1) {
+              clearInterval(timer);
+              navigate('/login', { 
+                state: { fromRegistration: true },
+                replace: true
+              });
+              return 0;
+            }
+            return prev - 1;
+          });
+        }, 1000);
+        
+        return () => clearInterval(timer);
       }
     } catch (err) {
       console.error('Registration error:', err);
       
-      // Обработка ошибки существующего email
       if (err.response?.data?.error === 'REGISTRATION_ERROR') {
         setError(err.response.data.message);
         
-        // Подсвечиваем конкретное поле с ошибкой
         setFormData(prev => ({
           ...prev,
           emailError: err.response.data.field === 'email' 
@@ -130,6 +147,36 @@ export default function RegisterPage() {
       setIsLoading(false);
     }
   };
+
+  if (registrationSuccess) {
+    return (
+      <div className="auth-page-container">
+        <div 
+          className="auth-background" 
+          style={{ backgroundImage: `url(${pddBackground})` }}
+        ></div>
+        
+        <div className="auth-form-container">
+          <div className="auth-form">
+            <h2>Регистрация успешно завершена!</h2>
+            <div className="success-message">
+              <p>На адрес <strong>{registeredEmail}</strong> было отправлено письмо с подтверждением.</p>
+              <p>Пожалуйста, проверьте вашу почту и следуйте инструкциям в письме.</p>
+              <p>Перенаправление на страницу входа через {countdown} секунд...</p>
+              <div className="success-icon">✓</div>
+              <Link 
+                to="/login" 
+                className="back-to-login"
+                state={{ fromRegistration: true }}
+              >
+                Перейти к входу сейчас
+              </Link>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <AuthForm

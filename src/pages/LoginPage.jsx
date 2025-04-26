@@ -4,8 +4,10 @@ import API from '../services/api';
 import AuthForm from '../components/Auth/AuthForm';
 import './AuthPage.css';
 import { useAuth } from '../contexts/AuthContext';
+import { useNotification } from '../contexts/NotificationContext';
 
 export default function LoginPage() {
+  const { showNotification } = useNotification();
   const { login } = useAuth();
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
@@ -112,6 +114,12 @@ export default function LoginPage() {
   
       // Сохраняем данные авторизации
       login(data.token, data.user);
+
+      // Показываем уведомление
+      showNotification({
+        message: 'Авторизация прошла успешно!',
+        type: 'success'
+      });
       
       // Логирование для отладки
       console.log('Успешная авторизация:', {
@@ -119,6 +127,17 @@ export default function LoginPage() {
         role: data.user.role,
         time: new Date().toISOString()
       });
+
+      // Перенаправление с задержкой, чтобы пользователь увидел уведомление
+        setTimeout(() => {
+          navigate(redirectPath, {
+            replace: true,
+            state: { 
+              fromLogin: true,
+              userData: data.user 
+            }
+          });
+        }, 1000);
   
       // Перенаправление с учетом роли
       const redirectPath = data.user.role === 'admin' 

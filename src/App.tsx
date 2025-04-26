@@ -8,20 +8,23 @@ import AdminLayout from './layouts/AdminLayout';
 import DashboardPage from './pages/admin/DashboardPage';
 import VerifyEmailPage from './pages/VerifyEmailPage'
 import ResendVerificationPage from './pages/ResendVerificationPage'
+import { NotificationProvider } from './contexts/NotificationContext';
 
 export default function App() {
   return (
-    <Routes>
-      <Route path="/" element={<HomePage />} />
-      <Route path="/login" element={<LoginPage />} />
-      <Route path="/register" element={<RegisterPage />} />
-      <Route path="/forgot-password" element={<ForgotPasswordPage />} />
-      <Route path="/reset-password" element={<ResetPasswordPage />} />
-      <Route path="/verify-email" element={<VerifyEmailPage />} />
-      <Route path="/resend-verification" element={<ResendVerificationPage />} />
-      <Route path="/admin" element={<AdminLayout />}>
-        <Route path="dashboard" element={<DashboardPage />} />
-      </Route>
-    </Routes>
+    <NotificationProvider>
+      <Routes>
+        <Route path="/" element={<HomePage />} />
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/register" element={<RegisterPage />} />
+        <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+        <Route path="/reset-password" element={<ResetPasswordPage />} />
+        <Route path="/verify-email" element={<VerifyEmailPage />} />
+        <Route path="/resend-verification" element={<ResendVerificationPage />} />
+        <Route path="/admin" element={<AdminLayout />}>
+          <Route path="dashboard" element={<DashboardPage />} />
+        </Route>
+      </Routes>
+    </NotificationProvider>
   );
 }
