@@ -3,7 +3,8 @@
   background-color: #330570;
   padding: 1rem 0;
   position: relative;
-  overflow: hidden; /* Фикс для выпадающих элементов */
+  overflow: hidden;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
 }
 
 .container {
@@ -24,7 +25,12 @@
   font-weight: 700;
   font-size: 1.5rem;
   text-decoration: none;
-  min-width: 120px; /* Фикс для маленьких экранов */
+  min-width: 120px;
+  transition: transform 0.3s;
+}
+
+.logo:hover {
+  transform: scale(1.03);
 }
 
 /* Навигация */
@@ -43,58 +49,117 @@
   text-decoration: none;
   padding: 8px 12px;
   border-radius: 4px;
-  transition: 0.3s !important;
+  transition: all 0.3s ease;
+  position: relative;
 }
 
+a.nav-link.register-btn {
+  background-color: #0d6efd;
+}
 .nav-link:hover {
   transform: translateY(-2px);
+  background-color: rgba(255, 255, 255, 0.1);
 }
 
-/* Иконки и текст */
+/* Акцентная кнопка регистрации */
+.register-btn {
+  padding: 0.5rem 1.2rem;
+  border-radius: 6px;
+  color: white !important;
+  font-weight: 600;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+.register-btn:hover {
+  background-color: #0d6efd;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+}
+
+.register-btn .nav-icon {
+  font-size: 1.5rem;
+}
+
+/* Иконки - основной цвет для всех кроме кнопки регистрации */
 .nav-icon {
   font-size: 1.3rem;
-  color: #66A3D2;
+  color: #66A3D2; /* Голубой цвет для обычных иконок */
   flex-shrink: 0;
   transition: 0.3s;
 }
 
-.nav-icon:hover {
-  transform: scale(1.15);
+/* Специальный стиль для иконки кнопки регистрации */
+.register-btn .nav-icon {
+  color: #330570 !important; /* Фиолетовый цвет для иконки регистрации */
+}
+
+
+.nav-link:hover .nav-icon {
+  color: #82C0FF;
 }
 
 .nav-text {
   margin-left: 8px;
+  transition: color 0.3s;
+}
+
+/* Подчеркивание при наведении */
+.nav-link:not(.register-btn)::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  width: 0;
+  height: 2px;
+  background-color: #66A3D2;
+  transform: translateX(-50%);
+  transition: width 0.3s;
+}
+
+.nav-link:not(.register-btn):hover::after {
+  width: 70%;
 }
 
 /* Адаптивность */
 @media (max-width: 992px) {
-  /* Средние экраны - уменьшаем отступы */
   .nav {
-    gap: 10px;
+    gap: 12px;
   }
   
   .nav-text {
     font-size: 0.9rem;
   }
+  
+  .register-btn {
+    padding: 0.5rem 1rem;
+  }
 }
 
 @media (max-width: 768px) {
-  /* Мобильные - оставляем только иконки */
   .nav-text {
     display: none;
   }
   
   .nav-link {
-    padding: 8px;
+    padding: 8px 10px;
   }
   
   .logo-text {
-    font-size: 1.3rem; /* Уменьшаем лого */
+    font-size: 1.3rem;
+  }
+  
+  .register-btn {
+    padding: 0.5rem;
+  }
+  
+  .register-btn .nav-text {
+    display: inline; /* Показываем текст только для кнопки */
+    margin-left: 5px;
+    font-size: 0.8rem;
   }
 }
 
 @media (max-width: 480px) {
-  /* Очень маленькие экраны */
   .container {
     padding: 0 10px;
   }
@@ -106,5 +171,13 @@
   
   .nav-icon {
     font-size: 1.1rem;
+  }
+  
+  .nav {
+    gap: 8px;
+  }
+  
+  .register-btn .nav-text {
+    display: none;
   }
 }
