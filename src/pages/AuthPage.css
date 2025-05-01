@@ -360,3 +360,52 @@
   from { opacity: 0; transform: scale(0.8); }
   to { opacity: 1; transform: scale(1); }
 }
+
+/* Обновленные стили для сообщения об успехе */
+.success-message {
+  text-align: center;
+  padding: 20px;
+}
+
+.success-icon {
+  font-size: 50px;
+  color: #4CAF50;
+  margin: 0 auto 20px;
+  display: block;
+  animation: fadeIn 0.5s;
+}
+
+.success-content {
+  margin-bottom: 20px;
+}
+
+.success-content p {
+  margin-bottom: 10px;
+  color: #555;
+  line-height: 1.5;
+}
+
+.success-content p strong {
+  color: #330570;
+}
+
+.back-to-login {
+  display: inline-block;
+  margin-top: 15px;
+  padding: 10px 20px;
+  background-color: #330570;
+  color: white;
+  border-radius: 6px;
+  text-decoration: none;
+  transition: background-color 0.3s;
+}
+
+.back-to-login:hover {
+  background-color: #2a0459;
+  text-decoration: none;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: scale(0.8); }
+  to { opacity: 1; transform: scale(1); }
+}

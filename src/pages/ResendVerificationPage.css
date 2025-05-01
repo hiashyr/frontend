@@ -1,104 +1,165 @@
 /* ResendVerificationPage.css */
-.resend-verification-container {
-    max-width: 500px;
-    margin: 2rem auto;
-    padding: 2rem;
-    background-color: #f8f9fa;
-    border-radius: 10px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    font-family: 'Arial', sans-serif;
+.resend-verification-page {
+  position: relative;
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+}
+
+.resend-background {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-size: cover;
+  background-position: center;
+  z-index: -1;
+  opacity: 0.15;
+}
+
+.resend-container {
+  background-color: white;
+  border-radius: 12px;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
+  width: 100%;
+  max-width: 500px;
+  overflow: hidden;
+  animation: fadeIn 0.5s ease-out;
+}
+
+.resend-content {
+  padding: 40px;
+  text-align: center;
+}
+
+.resend-content h2 {
+  color: #330570;
+  margin-bottom: 25px;
+  font-size: 24px;
+  font-weight: 600;
+}
+
+.form-group {
+  margin-bottom: 20px;
+  text-align: left;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 8px;
+  color: #555;
+  font-weight: 500;
+}
+
+.form-group input {
+  width: 100%;
+  padding: 14px 16px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: 16px;
+  transition: border-color 0.3s;
+}
+
+.form-group input:focus {
+  outline: none;
+  border-color: #330570;
+}
+
+.submit-button {
+  width: 100%;
+  padding: 14px;
+  background-color: #330570;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s;
+  margin-top: 10px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+}
+
+.submit-button:hover:not(:disabled) {
+  background-color: #2a0460;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(51, 5, 112, 0.2);
+}
+
+.submit-button:disabled {
+  background-color: #aaa;
+  cursor: not-allowed;
+}
+
+.back-button {
+  width: 100%;
+  padding: 12px;
+  background-color: transparent;
+  color: #330570;
+  border: 2px solid #330570;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s;
+  margin-top: 20px;
+}
+
+.back-button:hover {
+  background-color: #f8f5ff;
+}
+
+.resend-message {
+  padding: 12px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  font-size: 16px;
+}
+
+.resend-message.success {
+  background-color: #e8f5e9;
+  color: #2e7d32;
+}
+
+.resend-message.info {
+  background-color: #e3f2fd;
+  color: #1565c0;
+}
+
+.resend-message.error {
+  background-color: #ffebee;
+  color: #c62828;
+}
+
+.countdown-message {
+  margin-top: 10px;
+  font-size: 14px;
+  color: rgba(0, 0, 0, 0.7);
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Адаптация для мобильных */
+@media (max-width: 768px) {
+  .resend-content {
+    padding: 30px 20px;
   }
   
-  .resend-verification-container h2 {
-    color: #2c3e50;
-    text-align: center;
-    margin-bottom: 1.5rem;
-    font-size: 1.8rem;
+  .resend-content h2 {
+    font-size: 22px;
+    margin-bottom: 20px;
   }
   
-  .resend-verification-container form {
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-  }
-  
-  .resend-verification-container input {
-    padding: 12px 15px;
-    border: 1px solid #ddd;
-    border-radius: 6px;
-    font-size: 1rem;
-    transition: border-color 0.3s;
-  }
-  
-  .resend-verification-container input:focus {
-    outline: none;
-    border-color: #3498db;
-    box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
-  }
-  
-  .resend-verification-container button[type="submit"] {
-    background-color: #3498db;
-    color: white;
+  .submit-button, .back-button {
     padding: 12px;
-    border: none;
-    border-radius: 6px;
-    font-size: 1rem;
-    cursor: pointer;
-    transition: background-color 0.3s;
   }
-  
-  .resend-verification-container button[type="submit"]:hover {
-    background-color: #2980b9;
-  }
-  
-  .resend-verification-container button[type="submit"]:disabled {
-    background-color: #95a5a6;
-    cursor: not-allowed;
-  }
-  
-  .message {
-    margin-top: 1rem;
-    padding: 10px;
-    border-radius: 6px;
-    text-align: center;
-  }
-  
-  .message.success {
-    background-color: #d4edda;
-    color: #155724;
-  }
-  
-  .message.error {
-    background-color: #f8d7da;
-    color: #721c24;
-  }
-  
-  .back-button {
-    display: block;
-    width: 100%;
-    margin-top: 1rem;
-    padding: 10px;
-    background-color: #f1f1f1;
-    color: #333;
-    border: none;
-    border-radius: 6px;
-    text-align: center;
-    cursor: pointer;
-    transition: background-color 0.3s;
-  }
-  
-  .back-button:hover {
-    background-color: #e2e2e2;
-  }
-  
-  /* Адаптация для мобильных устройств */
-  @media (max-width: 600px) {
-    .resend-verification-container {
-      margin: 1rem;
-      padding: 1.5rem;
-    }
-    
-    .resend-verification-container h2 {
-      font-size: 1.5rem;
-    }
-  }
+}

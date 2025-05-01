@@ -160,10 +160,12 @@ export default function RegisterPage() {
           <div className="auth-form">
             <h2>Регистрация успешно завершена!</h2>
             <div className="success-message">
-              <p>На адрес <strong>{registeredEmail}</strong> было отправлено письмо с подтверждением.</p>
-              <p>Пожалуйста, проверьте вашу почту и следуйте инструкциям в письме.</p>
-              <p>Перенаправление на страницу входа через {countdown} секунд...</p>
               <div className="success-icon">✓</div>
+              <div className="success-content">
+                <p>На адрес <strong>{registeredEmail}</strong> было отправлено письмо с подтверждением.</p>
+                <p>Пожалуйста, проверьте вашу почту и следуйте инструкциям в письме.</p>
+                <p>Перенаправление на страницу входа через {countdown} секунд...</p>
+              </div>
               <Link 
                 to="/login" 
                 className="back-to-login"
