@@ -5,7 +5,7 @@ import API from '../../services/api';
 import defaultAvatar from '../../assets/default-avatar.png';
 import { FiUpload, FiInfo } from 'react-icons/fi';
 
-export default function AvatarUpload() {
+export default function AvatarUpload({ onSuccess }) {
   const { user, updateUser } = useAuth();
   const { showNotification } = useNotification();
   const [isLoading, setIsLoading] = useState(false);
@@ -51,10 +51,8 @@ export default function AvatarUpload() {
       });
       
       updateUser(data.user);
-      showNotification({
-        message: 'Аватар успешно обновлен',
-        type: 'success'
-      });
+      showNotification({ message: 'Аватар успешно обновлен', type: 'success' });
+      onSuccess(); // Вызываем колбэк при успехе
     } catch (err) {
       showNotification({
         message: err.response?.data?.error || 'Ошибка загрузки аватара',

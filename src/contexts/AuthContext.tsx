@@ -20,6 +20,7 @@ interface User {
   avatarUrl?: string;
   isVerified?: boolean;
   testStats?: TestStats;
+  createdAt: string;
 }
 
 interface AuthContextType {

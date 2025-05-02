@@ -1,16 +1,17 @@
 import { useState } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
+import { useNotification } from '../../contexts/NotificationContext';
 import API from '../../services/api';
 
-export default function PasswordChange() {
+export default function PasswordChange({ onSuccess }) {
+  const { user } = useAuth();
+  const { showNotification } = useNotification();
   const [formData, setFormData] = useState({
     currentPassword: '',
     newPassword: '',
     confirmPassword: ''
   });
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState('');
-  const [success, setSuccess] = useState('');
 
   const handleChange = (e) => {
     setFormData({
@@ -23,35 +24,40 @@ export default function PasswordChange() {
     e.preventDefault();
     
     if (formData.newPassword !== formData.confirmPassword) {
-      setError('Новые пароли не совпадают');
+      showNotification({
+        message: 'Новые пароли не совпадают',
+        type: 'error'
+      });
       return;
     }
-    
+
     try {
       setIsLoading(true);
-      setError('');
-      setSuccess('');
-      
       await API.post('/users/change-password', {
         currentPassword: formData.currentPassword,
-        newPassword: formData.newPassword
+        newPassword: formData.newPassword,
+        email: user.email
       });
       
-      setSuccess('Пароль успешно изменен');
+      onSuccess();
       setFormData({
         currentPassword: '',
         newPassword: '',
         confirmPassword: ''
       });
+      
     } catch (err) {
-      setError(err.response?.data?.error || 'Ошибка смены пароля');
+      showNotification({
+        message: err.response?.data?.error || 'Ошибка смены пароля',
+        type: 'error'
+      });
     } finally {
       setIsLoading(false);
     }
   };
 
   return (
-    <form onSubmit={handleSubmit} className="password-change">
+    <form onSubmit={handleSubmit} className="password-form">
       <div className="form-group">
         <label>Текущий пароль</label>
         <input
@@ -87,10 +93,7 @@ export default function PasswordChange() {
         />
       </div>
       
-      {error && <div className="error-message">{error}</div>}
-      {success && <div className="success-message">{success}</div>}
-      
-      <button type="submit" disabled={isLoading}>
+      <button type="submit" disabled={isLoading} className="submit-btn">
         {isLoading ? 'Сохранение...' : 'Изменить пароль'}
       </button>
     </form>

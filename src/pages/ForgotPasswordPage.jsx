@@ -66,9 +66,11 @@ export default function ForgotPasswordPage() {
           <div className="auth-form">
             <h2>Проверьте вашу почту</h2>
             <div className="success-message">
-              <p>Мы отправили письмо с инструкциями на {email}</p>
-              <p>Если письмо не пришло, проверьте папку "Спам"</p>
               <div className="success-icon">✓</div>
+              <div className="success-content">
+                <p>Мы отправили письмо с инструкциями на <strong>{email}</strong></p>
+                <p>Если письмо не пришло, проверьте папку "Спам"</p>
+              </div>
               <Link to="/login" className="back-to-login">Вернуться к входу</Link>
             </div>
           </div>
