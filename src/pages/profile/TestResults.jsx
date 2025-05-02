@@ -1,5 +1,5 @@
 import { useAuth } from '../../contexts/AuthContext';
-import '../profile-page.css'
+import './profile-page.css'
 
 export default function TestResults() {
   const { user } = useAuth();

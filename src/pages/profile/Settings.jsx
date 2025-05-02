@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import AvatarUpload from '../../components/profile/AvatarUpload';
-import PasswordChange from '../../components/profile/PasswordChange';
+import ChangePassword from '../../components/profile/ChangePassword'; // Заменяем компонент
 import { useAuth } from '../../contexts/AuthContext';
-import '../profile-page.css'
+import './profile-page.css';
 
 export default function Settings() {
   const { logout } = useAuth();
@@ -29,7 +29,7 @@ export default function Settings() {
       
       <div className="settings-content">
         {activeTab === 'avatar' && <AvatarUpload />}
-        {activeTab === 'password' && <PasswordChange />}
+        {activeTab === 'password' && <ChangePassword />}
       </div>
       
       <button onClick={logout} className="logout-btn">
