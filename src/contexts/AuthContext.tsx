@@ -1,6 +1,7 @@
 import { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import API from '../services/api';
+import LoadingSpinner from '../components/LoadingSpinner';
 
 interface TestStats {
   totalTests: number;
@@ -39,7 +40,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [isLoading, setIsLoading] = useState(true);
   const navigate = useNavigate();
 
-  // Мемоизированная функция для получения данных пользователя
+  // Функция для нормализации URL аватара
+  const normalizeAvatarUrl = (userData: User): User => {
+    if (!userData.avatarUrl) return userData;
+    
+    return {
+      ...userData,
+      avatarUrl: userData.avatarUrl.startsWith('http')
+        ? userData.avatarUrl
+        : `${process.env.REACT_APP_API_URL || window.location.origin}${userData.avatarUrl}`
+    };
+  };
+
+  // Получение данных пользователя с обработкой аватара
   const fetchUserData = useCallback(async (): Promise<User> => {
     try {
       const { data } = await API.get('/users/me');
@@ -48,8 +61,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         throw new Error('Invalid user data structure');
       }
       
-      setUser(data);
-      return data;
+      const normalizedUser = normalizeAvatarUrl(data);
+      setUser(normalizedUser);
+      return normalizedUser;
     } catch (err) {
       console.error('Failed to fetch user data:', err);
       localStorage.removeItem('token');
@@ -59,7 +73,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   }, []);
 
-  // Проверка авторизации при монтировании и изменении маршрута
+  // Проверка авторизации
   useEffect(() => {
     const verifyAuth = async () => {
       const token = localStorage.getItem('token');
@@ -69,13 +83,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
   
       try {
-        // Устанавливаем токен в заголовки перед запросом
         API.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-        await fetchUserData();
+        const userData = await fetchUserData();
+        
+        // Дополнительная проверка для защиты от невалидных состояний
+        if (!userData || !userData.id) {
+          throw new Error('Invalid user data');
+        }
       } catch (err) {
         console.error('Authentication check failed:', err);
-        if (window.location.pathname !== '/login') {
-          navigate('/login', { replace: true });
+        if (!window.location.pathname.includes('/login')) {
+          navigate('/login', { 
+            replace: true,
+            state: { from: window.location.pathname } 
+          });
         }
       } finally {
         setIsLoading(false);
@@ -88,19 +109,29 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const login = (token: string, userData: User) => {
     localStorage.setItem('token', token);
     API.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-    setUser(userData);
-    navigate('/profile', { replace: true });
+    setUser(normalizeAvatarUrl(userData));
+    navigate(userData.role === 'admin' ? '/admin/dashboard' : '/profile', { 
+      replace: true 
+    });
   };
 
   const logout = useCallback(() => {
     localStorage.removeItem('token');
     delete API.defaults.headers.common['Authorization'];
     setUser(null);
-    navigate('/login', { replace: true });
+    navigate('/login', { 
+      replace: true,
+      state: { from: window.location.pathname } 
+    });
   }, [navigate]);
 
   const updateUser = useCallback((userData: Partial<User>) => {
-    setUser(prev => prev ? { ...prev, ...userData } : null);
+    setUser(prev => {
+      if (!prev) return null;
+      
+      const updatedUser = { ...prev, ...userData };
+      return normalizeAvatarUrl(updatedUser);
+    });
   }, []);
 
   const refreshUser = async () => {
@@ -114,12 +145,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
-  // Добавляем обработчик для автоматического выхода при 401 ошибке
+  // Обработчик 401 ошибок
   useEffect(() => {
     const responseInterceptor = API.interceptors.response.use(
       (response) => response,
       (error) => {
-        if (error.response?.status === 401) {
+        if (error.response?.status === 401 && user) {
           logout();
         }
         return Promise.reject(error);
@@ -129,7 +160,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return () => {
       API.interceptors.response.eject(responseInterceptor);
     };
-  }, [logout]);
+  }, [logout, user]);
 
   const value = {
     user,
@@ -144,6 +175,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     <AuthContext.Provider value={value}>
       {isLoading ? (
         <div className="full-page-loading">
+          <LoadingSpinner />
           <p>Проверка авторизации...</p>
         </div>
       ) : (

@@ -5,7 +5,7 @@ import { useAuth } from '../../contexts/AuthContext';
 import { format } from 'date-fns';
 import { ru } from 'date-fns/locale';
 import './Settings.css';
-import backgroundImage from '../../assets/settings-bg.jpg'; // Добавляем фоновое изображение
+import backgroundImage from '../../assets/settings-bg1.jpg'; // Добавляем фоновое изображение
 
 export default function Settings() {
   const { user, logout } = useAuth();

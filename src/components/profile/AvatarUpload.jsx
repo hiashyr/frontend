@@ -1,105 +1,125 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { useNotification } from '../../contexts/NotificationContext';
 import API from '../../services/api';
 import defaultAvatar from '../../assets/default-avatar.png';
-import { FiUpload, FiInfo } from 'react-icons/fi';
+import { FiUpload, FiUser } from 'react-icons/fi';
+import './AvatarUpload.css'; // Создайте этот файл для стилей
 
-export default function AvatarUpload({ onSuccess }) {
+const AvatarUpload = () => {
   const { user, updateUser } = useAuth();
   const { showNotification } = useNotification();
+  const fileInputRef = useRef(null);
   const [isLoading, setIsLoading] = useState(false);
-  const [preview, setPreview] = useState(null);
+  const [previewUrl, setPreviewUrl] = useState(null);
 
   const handleFileChange = async (e) => {
     const file = e.target.files[0];
+    
     if (!file) return;
-
-    // Проверка размера файла (макс. 2MB)
-    if (file.size > 2 * 1024 * 1024) {
-      showNotification({
-        message: 'Размер файла не должен превышать 2MB',
-        type: 'error'
-      });
-      return;
-    }
-
-    // Проверка формата
-    if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type)) {
+    
+    // Валидация на клиенте
+    const validTypes = ['image/jpeg', 'image/png', 'image/webp'];
+    if (!validTypes.includes(file.type)) {
       showNotification({
         message: 'Допустимые форматы: JPG, PNG, WEBP',
-        type: 'error'
+        type: 'error',
+        duration: 5000
+      });
+      return;
+    }
+    
+    if (file.size > 2 * 1024 * 1024) {
+      showNotification({
+        message: 'Максимальный размер файла - 2MB',
+        type: 'error',
+        duration: 5000
       });
       return;
     }
 
-    try {
-      setIsLoading(true);
-      
-      // Создание превью
-      const reader = new FileReader();
-      reader.onload = (e) => setPreview(e.target.result);
-      reader.readAsDataURL(file);
+    // Показываем превью
+    const reader = new FileReader();
+    reader.onload = () => setPreviewUrl(reader.result);
+    reader.readAsDataURL(file);
 
-      const formData = new FormData();
-      formData.append('avatar', file);
-      
+    // Загрузка на сервер
+    const formData = new FormData();
+    formData.append('avatar', file);
+
+    setIsLoading(true);
+    try {
       const { data } = await API.post('/users/upload-avatar', formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data'
-        }
+        headers: { 'Content-Type': 'multipart/form-data' }
       });
       
-      updateUser(data.user);
-      showNotification({ message: 'Аватар успешно обновлен', type: 'success' });
-      onSuccess(); // Вызываем колбэк при успехе
+      updateUser({ avatarUrl: data.avatarUrl });
+      showNotification({
+        message: 'Аватар успешно обновлен!',
+        type: 'success',
+        duration: 3000
+      });
     } catch (err) {
+      setPreviewUrl(null);
       showNotification({
         message: err.response?.data?.error || 'Ошибка загрузки аватара',
-        type: 'error'
+        type: 'error',
+        duration: 5000
       });
     } finally {
       setIsLoading(false);
     }
   };
 
+  const triggerFileInput = () => {
+    fileInputRef.current.click();
+  };
+
   return (
     <div className="avatar-upload-container">
-      <div className="avatar-section">
-        <div className="avatar-preview">
-          <img 
-            src={preview || user.avatarUrl || defaultAvatar} 
-            alt="Аватар пользователя"
-            className="avatar-image"
-          />
-        </div>
-
-        <div className="avatar-upload-controls">
-          <label className="upload-btn">
-            <FiUpload className="icon" />
-            {isLoading ? 'Загрузка...' : 'Выбрать аватар'}
-            <input 
-              type="file" 
-              accept="image/jpeg, image/png, image/webp"
-              onChange={handleFileChange}
-              disabled={isLoading}
-              hidden
-            />
-          </label>
-          
-          <div className="avatar-requirements">
-            <div className="requirements-title">
-              <FiInfo className="info-icon" />
-              <span>Требования к аватару:</span>
-            </div>
-            <ul className="requirements-list">
-              <li>Форматы: JPG, PNG, WEBP</li>
-              <li>Макс. размер: 2MB</li>
-              <li>Рекомендуемый размер: 200×200px</li>
-            </ul>
+      <div 
+        className="avatar-preview"
+        onClick={triggerFileInput}
+        title="Нажмите для изменения аватара"
+      >
+        {previewUrl ? (
+          <img src={previewUrl} alt="Превью аватара" className="avatar-image" />
+        ) : user?.avatarUrl ? (
+          <img src={user.avatarUrl} alt="Аватар пользователя" className="avatar-image" />
+        ) : (
+          <div className="avatar-placeholder">
+            <FiUser className="placeholder-icon" />
           </div>
-        </div>
+        )}
+        
+        {isLoading && (
+          <div className="upload-overlay">
+            <div className="spinner"></div>
+          </div>
+        )}
+      </div>
+
+      <div className="upload-controls">
+        <input
+          type="file"
+          ref={fileInputRef}
+          accept=".jpg,.jpeg,.png,.webp"
+          onChange={handleFileChange}
+          className="file-input"
+        />
+        <button 
+          type="button" 
+          onClick={triggerFileInput}
+          className="upload-button"
+          disabled={isLoading}
+        >
+          <FiUpload className="upload-icon" />
+          {user?.avatarUrl ? 'Изменить фото' : 'Загрузить фото'}
+        </button>
+        <p className="file-hint">JPG, PNG или WEBP. Макс. 2MB</p>
       </div>
     </div>
   );
-}
+};
+
+export default AvatarUpload;

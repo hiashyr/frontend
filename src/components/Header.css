@@ -181,3 +181,55 @@ a.nav-link.register-btn {
     display: none;
   }
 }
+
+/* Добавьте эти стили в существующий файл */
+
+.user-profile-link {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.user-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid #fff;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Для плавного перехода при смене аватара */
+.user-avatar {
+  transition: opacity 0.3s ease;
+}
+
+.user-avatar:hover {
+  opacity: 0.9;
+}
+
+/* Адаптация под мобильные устройства */
+@media (max-width: 768px) {
+  .user-avatar {
+    width: 28px;
+    height: 28px;
+  }
+  
+  .nav-text {
+    display: none; /* Скрываем текст на мобильных */
+  }
+  
+  .user-profile-link {
+    padding: 8px;
+  }
+}
+
+.user-avatar {
+  border-radius: 50%;
+  object-fit: cover;
+  transition: opacity 0.3s ease;
+}
+
+.user-avatar:hover {
+  opacity: 0.9;
+}
