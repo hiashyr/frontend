@@ -80,14 +80,14 @@
   }
   
   .logout-btn {
-    padding: 14px 28px;
-    background-color: #f44336;
+    padding: 12px 24px;
+    background-color: #d32f2f; /* Более темный красный */
     color: white;
     border: none;
-    border-radius: 8px;
+    border-radius: 6px;
+    font-weight: 600;
     cursor: pointer;
-    font-size: 1rem;
-    transition: all 0.2s;
+    transition: all 0.3s ease;
   }
   
   .logout-btn:hover {

@@ -4,14 +4,19 @@
     min-height: calc(100vh - 120px);
     background: 
     linear-gradient(rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0.3)),
-    url('../../assets/settings-bg.jpg') center/cover no-repeat fixed;
+    url('../../assets/settings-bg1.jpg') center/cover no-repeat fixed;
+    position: relative;
   }
   
   .profile-sidebar {
     width: 250px;
     padding: 20px;
     background: #f5f7fa;
-  }
+    position: sticky; /* Делаем сайдбар "липким" */
+    top: 0; /* Прилипаем к верху */
+    height: 100vh; /* Занимаем всю высоту экрана */
+    overflow-y: auto; /* Добавляем прокрутку если контент не помещается */
+}
   
   .profile-nav {
     display: flex;

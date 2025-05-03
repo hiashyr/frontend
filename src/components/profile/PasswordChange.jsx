@@ -3,52 +3,38 @@ import { useAuth } from '../../contexts/AuthContext';
 import { useNotification } from '../../contexts/NotificationContext';
 import API from '../../services/api';
 
-export default function PasswordChange({ onSuccess }) {
+export default function PasswordChange() {
   const { user } = useAuth();
   const { showNotification } = useNotification();
-  const [formData, setFormData] = useState({
-    currentPassword: '',
-    newPassword: '',
-    confirmPassword: ''
-  });
+  const [currentPassword, setCurrentPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-
-  const handleChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value
-    });
-  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     
-    if (formData.newPassword !== formData.confirmPassword) {
+    if (!currentPassword) {
       showNotification({
-        message: 'Новые пароли не совпадают',
+        message: 'Введите текущий пароль',
         type: 'error'
       });
       return;
     }
 
+    setIsLoading(true);
     try {
-      setIsLoading(true);
-      await API.post('/users/change-password', {
-        currentPassword: formData.currentPassword,
-        newPassword: formData.newPassword,
+      await API.post('/auth/request-password-change', { 
+        currentPassword,
         email: user.email
       });
       
-      onSuccess();
-      setFormData({
-        currentPassword: '',
-        newPassword: '',
-        confirmPassword: ''
+      showNotification({
+        message: 'Письмо с подтверждением отправлено на ваш email',
+        type: 'success'
       });
-      
+      setCurrentPassword('');
     } catch (err) {
       showNotification({
-        message: err.response?.data?.error || 'Ошибка смены пароля',
+        message: err.response?.data?.error || 'Ошибка при запросе смены пароля',
         type: 'error'
       });
     } finally {
@@ -57,44 +43,24 @@ export default function PasswordChange({ onSuccess }) {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="password-form">
+    <form onSubmit={handleSubmit} className="password-change-form">
       <div className="form-group">
-        <label>Текущий пароль</label>
+        <label htmlFor="currentPassword">Текущий пароль</label>
         <input
+          id="currentPassword"
           type="password"
-          name="currentPassword"
-          value={formData.currentPassword}
-          onChange={handleChange}
+          value={currentPassword}
+          onChange={(e) => setCurrentPassword(e.target.value)}
           required
+          aria-required="true"
         />
-      </div>
-      
-      <div className="form-group">
-        <label>Новый пароль</label>
-        <input
-          type="password"
-          name="newPassword"
-          value={formData.newPassword}
-          onChange={handleChange}
-          minLength="6"
-          required
-        />
-      </div>
-      
-      <div className="form-group">
-        <label>Подтвердите пароль</label>
-        <input
-          type="password"
-          name="confirmPassword"
-          value={formData.confirmPassword}
-          onChange={handleChange}
-          minLength="6"
-          required
-        />
+        <p className="form-hint">
+          После подтверждения вы получите письмо со ссылкой для смены пароля
+        </p>
       </div>
       
       <button type="submit" disabled={isLoading} className="submit-btn">
-        {isLoading ? 'Сохранение...' : 'Изменить пароль'}
+        {isLoading ? 'Отправка...' : 'Запросить смену пароля'}
       </button>
     </form>
   );

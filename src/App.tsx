@@ -6,40 +6,50 @@ import ForgotPasswordPage from "./pages/ForgotPasswordPage";
 import ResetPasswordPage from "./pages/ResetPasswordPage";
 import AdminLayout from './layouts/AdminLayout';
 import DashboardPage from './pages/admin/DashboardPage';
-import VerifyEmailPage from './pages/VerifyEmailPage'
-import ResendVerificationPage from './pages/ResendVerificationPage'
+import VerifyEmailPage from './pages/VerifyEmailPage';
+import ResendVerificationPage from './pages/ResendVerificationPage';
 import { NotificationProvider } from './contexts/NotificationContext';
-import ProfilePage from './pages/profile/ProfilePage'
+import ProfilePage from './pages/profile/ProfilePage';
 import TestResults from './pages/profile/TestResults';
 import Settings from './pages/profile/Settings';
 import PrivateRoute from './components/PrivateRoute';
+import { AuthProvider } from './contexts/AuthContext';
+import ErrorBoundary from './components/ErrorBoundary';
 
 export default function App() {
   return (
-    <NotificationProvider>
-      <Routes>
-        <Route path="/" element={<HomePage />} />
-        <Route path="/login" element={<LoginPage />} />
-        <Route path="/register" element={<RegisterPage />} />
-        <Route path="/forgot-password" element={<ForgotPasswordPage />} />
-        <Route path="/reset-password" element={<ResetPasswordPage />} />
-        <Route path="/verify-email" element={<VerifyEmailPage />} />
-        <Route path="/resend-verification" element={<ResendVerificationPage />} />
-        <Route path="/admin" element={<AdminLayout />}>
-          <Route path="dashboard" element={<DashboardPage />} />
-        </Route>
-        <Route path="/profile" element={<ProfilePage />}>
-          <Route path="results" element={<TestResults />} />
-          <Route path="settings" element={<Settings />} />
-          <Route index element={<Navigate to="results" replace />} />
-        </Route>
-        <Route element={<PrivateRoute />}>
-        <Route path="/profile" element={<ProfilePage />}>
-          <Route path="results" element={<TestResults />} />
-          <Route path="settings" element={<Settings />} />
-        </Route>
-      </Route>
-      </Routes>
-    </NotificationProvider>
+      <AuthProvider>
+        <NotificationProvider>
+          <ErrorBoundary>
+            <Routes>
+              {/* Public routes */}
+              <Route path="/" element={<HomePage />} />
+              <Route path="/login" element={<LoginPage />} />
+              <Route path="/register" element={<RegisterPage />} />
+              <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+              <Route path="/reset-password" element={<ResetPasswordPage />} />
+              <Route path="/verify-email" element={<VerifyEmailPage />} />
+              <Route path="/resend-verification" element={<ResendVerificationPage />} />
+
+              {/* Protected routes */}
+              <Route element={<PrivateRoute />}>
+                <Route path="/profile" element={<ProfilePage />}>
+                  <Route path="results" element={<TestResults />} />
+                  <Route path="settings" element={<Settings />} />
+                  <Route index element={<Navigate to="results" replace />} />
+                </Route>
+
+                {/* Admin routes */}
+                <Route path="/admin" element={<AdminLayout />}>
+                  <Route path="dashboard" element={<DashboardPage />} />
+                </Route>
+              </Route>
+
+              {/* Fallback route */}
+              <Route path="*" element={<Navigate to="/" replace />} />
+            </Routes>
+          </ErrorBoundary>
+        </NotificationProvider>
+      </AuthProvider>
   );
 }

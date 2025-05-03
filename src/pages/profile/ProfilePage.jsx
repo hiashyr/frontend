@@ -19,8 +19,12 @@ export default function ProfilePage() {
 
   return (
     <div className="profile-page">
-      <button className="profile-close-btn" onClick={handleClose}>
-        <FaTimes />
+      <button 
+        className="profile-close-btn" 
+        onClick={handleClose}
+        aria-label="Закрыть страницу настроек"
+      >
+        <FaTimes aria-hidden="true" />
       </button>
       
       <div className="profile-sidebar">
