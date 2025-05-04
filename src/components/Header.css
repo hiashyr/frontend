@@ -1,10 +1,11 @@
-/* Базовые стили */
 .header {
   background-color: #330570;
-  padding: 1rem 0;
+  padding: 0; /* Убрали вертикальный padding */
   position: relative;
-  overflow: hidden;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+  height: 70px; /* Фиксированная высота хедера */
+  display: flex;
+  align-items: center; /* Выравнивание по вертикали */
 }
 
 .container {
@@ -27,10 +28,9 @@
   text-decoration: none;
   min-width: 120px;
   transition: transform 0.3s;
-}
-
-.logo:hover {
-  transform: scale(1.03);
+  height: 100%; /* Занимает всю высоту хедера */
+  display: flex;
+  align-items: center; /* Центрируем лого по вертикали */
 }
 
 /* Навигация */
@@ -40,6 +40,8 @@
   margin: 0;
   padding: 0;
   list-style: none;
+  height: 100%; /* Занимает всю высоту хедера */
+  align-items: center; /* Центрируем элементы навигации */
 }
 
 .nav-link {
@@ -47,10 +49,11 @@
   align-items: center;
   color: white !important;
   text-decoration: none;
-  padding: 8px 12px;
+  padding: 0 12px; /* Уменьшили вертикальный padding */
   border-radius: 4px;
   transition: all 0.3s ease;
   position: relative;
+  height: 100%; /* Занимает всю высоту хедера */
 }
 
 a.nav-link.register-btn {
@@ -188,48 +191,61 @@ a.nav-link.register-btn {
   display: flex;
   align-items: center;
   gap: 8px;
+  height: 100%; /* Занимает всю высоту хедера */
+  padding: 0 10px;
 }
 
 .user-avatar {
-  width: 32px;
-  height: 32px;
+  width: 52px;
+  height: 52px;
   border-radius: 50%;
   object-fit: cover;
   border: 2px solid #fff;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-/* Для плавного перехода при смене аватара */
-.user-avatar {
   transition: opacity 0.3s ease;
 }
+
+
 
 .user-avatar:hover {
   opacity: 0.9;
 }
 
-/* Адаптация под мобильные устройства */
+/* Адаптивность */
 @media (max-width: 768px) {
+  .header {
+    height: 60px; /* Уменьшаем высоту на мобильных */
+  }
+  
   .user-avatar {
-    width: 28px;
-    height: 28px;
+    width: 40px;
+    height: 40px;
   }
   
   .nav-text {
-    display: none; /* Скрываем текст на мобильных */
+    display: none;
   }
   
-  .user-profile-link {
-    padding: 8px;
+  .logo-text {
+    font-size: 1.3rem;
   }
 }
 
-.user-avatar {
-  border-radius: 50%;
-  object-fit: cover;
-  transition: opacity 0.3s ease;
-}
-
-.user-avatar:hover {
-  opacity: 0.9;
+@media (max-width: 480px) {
+  .container {
+    padding: 0 10px;
+  }
+  
+  .user-avatar {
+    width: 36px;
+    height: 36px;
+  }
+  
+  .logo-text {
+    font-size: 1.1rem;
+  }
+  
+  .nav {
+    gap: 8px;
+  }
 }

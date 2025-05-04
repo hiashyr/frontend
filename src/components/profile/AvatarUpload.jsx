@@ -15,6 +15,7 @@ const AvatarUpload = () => {
 
   const handleFileChange = async (e) => {
     const file = e.target.files[0];
+    console.log('Selected file:', file.name, file.size, file.type);
     
     if (!file) return;
     
@@ -52,14 +53,27 @@ const AvatarUpload = () => {
       const { data } = await API.post('/users/upload-avatar', formData, {
         headers: { 'Content-Type': 'multipart/form-data' }
       });
+      console.log('Server response:', data);
       
-      updateUser({ avatarUrl: data.avatarUrl });
+      // Добавляем базовый URL к полученному пути
+      const fullAvatarUrl = `${process.env.REACT_APP_API_URL || ''}${data.avatarUrl}`;
+      
+      // Обновляем пользователя с полным URL
+      updateUser({ 
+        ...user, 
+        avatarUrl: fullAvatarUrl 
+      });
+      
       showNotification({
         message: 'Аватар успешно обновлен!',
         type: 'success',
         duration: 3000
       });
     } catch (err) {
+      console.error('Upload failed:', {
+        response: err.response,
+        message: err.message
+      });
       setPreviewUrl(null);
       showNotification({
         message: err.response?.data?.error || 'Ошибка загрузки аватара',

@@ -12,21 +12,18 @@ export default function Header() {
   const getAvatarUrl = useCallback((avatarUrl) => {
     if (!avatarUrl) return defaultAvatar;
     
-    // Если URL уже абсолютный или data URL
+    // Если URL уже абсолютный (уже содержит базовый URL)
     if (avatarUrl.startsWith('http') || avatarUrl.startsWith('data:')) {
       return avatarUrl;
     }
     
-    // Проверяем, начинается ли URL с '/uploads' (относительный путь)
-    if (avatarUrl.startsWith('/uploads')) {
-      return `${process.env.REACT_APP_API_URL || window.location.origin}${avatarUrl}`;
-    }
-    
-    // Для других случаев возвращаем как есть (может быть base64 или другой формат)
-    return avatarUrl;
+    // Для относительных путей (на случай, если где-то еще используется)
+    return `${process.env.REACT_APP_API_URL || window.location.origin}${avatarUrl}`;
   }, []);
 
   useEffect(() => {
+    console.log('Current avatar URL:', user?.avatarUrl);
+    console.log('Processed avatar URL:', getAvatarUrl(user?.avatarUrl));
     if (user?.avatarUrl) {
       const newAvatarSrc = getAvatarUrl(user.avatarUrl);
       

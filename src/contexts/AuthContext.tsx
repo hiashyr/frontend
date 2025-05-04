@@ -44,11 +44,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const normalizeAvatarUrl = (userData: User): User => {
     if (!userData.avatarUrl) return userData;
     
+    // Если URL уже абсолютный
+    if (userData.avatarUrl.startsWith('http') || userData.avatarUrl.startsWith('data:')) {
+      return userData;
+    }
+    
+    // Добавляем базовый URL
     return {
       ...userData,
-      avatarUrl: userData.avatarUrl.startsWith('http')
-        ? userData.avatarUrl
-        : `${process.env.REACT_APP_API_URL || window.location.origin}${userData.avatarUrl}`
+      avatarUrl: `${process.env.REACT_APP_API_URL || 'http://localhost:5000'}${userData.avatarUrl}`
     };
   };
 
@@ -61,7 +65,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         throw new Error('Invalid user data structure');
       }
       
-      const normalizedUser = normalizeAvatarUrl(data);
+      // Добавляем проверку и нормализацию аватара
+      const normalizedUser = normalizeAvatarUrl({
+        ...data,
+        avatarUrl: data.avatar_url || data.avatarUrl // учитываем разные варианты названия поля
+      });
+      
       setUser(normalizedUser);
       return normalizedUser;
     } catch (err) {
@@ -109,8 +118,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const login = (token: string, userData: User) => {
     localStorage.setItem('token', token);
     API.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-    setUser(normalizeAvatarUrl(userData));
-    navigate(userData.role === 'admin' ? '/admin/dashboard' : '/profile', { 
+    
+    // Нормализуем URL аватара перед сохранением
+    const normalizedUser = normalizeAvatarUrl(userData);
+    setUser(normalizedUser);
+    
+    navigate(normalizedUser.role === 'admin' ? '/admin/dashboard' : '/profile', { 
       replace: true 
     });
   };
@@ -129,8 +142,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setUser(prev => {
       if (!prev) return null;
       
-      const updatedUser = { ...prev, ...userData };
-      return normalizeAvatarUrl(updatedUser);
+      // Нормализуем URL аватара перед сохранением
+      const updatedUser = normalizeAvatarUrl({ ...prev, ...userData });
+      
+      // Добавим timestamp к URL аватара для избежания кеширования
+      if (updatedUser.avatarUrl && !updatedUser.avatarUrl.includes('?')) {
+        updatedUser.avatarUrl = `${updatedUser.avatarUrl}?t=${Date.now()}`;
+      }
+      
+      return updatedUser;
     });
   }, []);
 
