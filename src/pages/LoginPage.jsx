@@ -1,75 +1,74 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation, Link } from 'react-router-dom';
 import API from '../services/api';
 import AuthForm from '../components/Auth/AuthForm';
 import './AuthPage.css';
 import { useAuth } from '../contexts/AuthContext';
 import { useNotification } from '../contexts/NotificationContext';
+import pddBackground from '.././assets/pdd-background.jpg'
 
 export default function LoginPage() {
   const { showNotification } = useNotification();
   const { login } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
+  
   const [formData, setFormData] = useState({
     email: '',
     password: ''
   });
-  const [fieldErrors, setFieldErrors] = useState({
+  
+  const [errors, setErrors] = useState({
     email: '',
     password: ''
   });
-  const [formError, setFormError] = useState('');
+  
+  const [formError, setFormError] = useState({
+    message: '',
+    canResend: false
+  });
+  
   const [isLoading, setIsLoading] = useState(false);
   const [touched, setTouched] = useState({
     email: false,
     password: false
   });
 
-  // Валидация email
   const validateEmail = (email) => {
-    const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return re.test(String(email).toLowerCase());
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
   };
 
-  // Валидация при изменении полей
   useEffect(() => {
+    const newErrors = { ...errors };
+    
     if (touched.email) {
-      setFieldErrors(prev => ({
-        ...prev,
-        email: formData.email 
-          ? validateEmail(formData.email) 
-            ? '' 
-            : 'Введите корректный email'
-          : 'Email обязателен'
-      }));
+      newErrors.email = !formData.email 
+        ? 'Email обязателен' 
+        : !validateEmail(formData.email) 
+          ? 'Введите корректный email' 
+          : '';
     }
-
+    
     if (touched.password) {
-      setFieldErrors(prev => ({
-        ...prev,
-        password: formData.password 
-          ? formData.password.length >= 6 
-            ? '' 
-            : 'Пароль должен содержать минимум 6 символов'
-          : 'Пароль обязателен'
-      }));
+      newErrors.password = !formData.password 
+        ? 'Пароль обязателен' 
+        : formData.password.length < 6 
+          ? 'Пароль должен содержать минимум 6 символов' 
+          : '';
     }
+    
+    setErrors(newErrors);
   }, [formData, touched]);
 
-  const handleBlur = (fieldName) => {
-    setTouched(prev => ({ ...prev, [fieldName]: true }));
+  const handleBlur = (field) => {
+    setTouched(prev => ({ ...prev, [field]: true }));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     
-    // Помечаем поля как touched
-    setTouched({
-      email: true,
-      password: true
-    });
-  
-    // Валидация полей
+    setTouched({ email: true, password: true });
+    
     const emailError = !formData.email 
       ? 'Email обязателен' 
       : !validateEmail(formData.email) 
@@ -81,111 +80,81 @@ export default function LoginPage() {
       : formData.password.length < 6 
         ? 'Пароль должен содержать минимум 6 символов' 
         : '';
-  
+    
     if (emailError || passwordError) {
-      setFieldErrors({
-        email: emailError,
-        password: passwordError
-      });
+      setErrors({ email: emailError, password: passwordError });
       return;
     }
-  
+    
     setIsLoading(true);
-    setFormError('');
-    setFieldErrors({ email: '', password: '' });
-  
+    setFormError({ message: '', canResend: false });
+    
     try {
       const { data } = await API.post('/users/login', {
-        email: formData.email.trim(), // Удаляем пробелы
+        email: formData.email.trim(),
         password: formData.password
       });
-  
-      // Расширенная проверка ответа сервера
-      if (!data?.token || !data?.user) {
+
+      if (!data?.token || !data?.user?.id || !data?.user?.email || !data?.user?.role) {
         throw new Error('Неполные данные от сервера');
       }
-  
-      const requiredUserFields = ['id', 'email', 'role'];
-      const missingFields = requiredUserFields.filter(field => !data.user[field]);
-      
-      if (missingFields.length > 0) {
-        throw new Error(`Отсутствуют обязательные поля: ${missingFields.join(', ')}`);
-      }
-  
-      // Сохраняем данные авторизации
-      login(data.token, data.user);
 
-      // Показываем уведомление
+      login(data.token, data.user);
+      
       showNotification({
         message: 'Авторизация прошла успешно!',
         type: 'success'
       });
-      
-      // Логирование для отладки
-      console.log('Успешная авторизация:', {
-        user: data.user.email,
-        role: data.user.role,
-        time: new Date().toISOString()
-      });
 
-      // Перенаправление с задержкой, чтобы пользователь увидел уведомление
-        setTimeout(() => {
-          navigate(redirectPath, {
-            replace: true,
-            state: { 
-              fromLogin: true,
-              userData: data.user 
-            }
-          });
-        }, 1000);
-  
-      // Перенаправление с учетом роли
-      const redirectPath = data.user.role === 'admin' 
-        ? '/admin/dashboard' 
-        : '/';
+      const redirectPath = location.state?.from?.pathname || 
+                         (data.user.role === 'admin' ? '/admin/dashboard' : '/');
       
-      navigate(redirectPath, {
-        replace: true,
-        state: { 
-          fromLogin: true,
-          userData: data.user 
-        }
-      });
-  
+      setTimeout(() => {
+        navigate(redirectPath, {
+          replace: true,
+          state: { 
+            fromLogin: true,
+            userData: data.user 
+          }
+        });
+      }, 1000);
+
     } catch (err) {
-      console.error('Ошибка авторизации:', {
-        error: err,
-        time: new Date().toISOString(),
-        email: formData.email
-      });
-  
-      // Расширенная обработка ошибок
+      console.error('Ошибка авторизации:', err);
+      
       const serverError = err.response?.data;
       
       if (serverError?.error === 'EMAIL_NOT_VERIFIED') {
-        navigate('/verify-email', {
-          state: { 
-            email: formData.email,
-            canResend: true
-          }
-        });
-      } else if (serverError?.field) {
-        setFieldErrors({
-          [serverError.field]: serverError.message || 'Ошибка при вводе'
+        setFormError({
+          message: serverError.message || 'Подтвердите email, письмо отправлено',
+          canResend: serverError.canResend || false
         });
       } else {
-        setFormError(
-          serverError?.message || 
-          err.message || 
-          'Ошибка при авторизации. Попробуйте позже'
-        );
+        setFormError({
+          message: serverError?.message || 
+                  'Неверные учетные данные или ошибка сервера',
+          canResend: false
+        });
       }
-  
-      // Сброс пароля в форме
+      
       setFormData(prev => ({ ...prev, password: '' }));
-  
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const handleResendEmail = async () => {
+    try {
+      await API.post('/auth/resend-verification', { email: formData.email });
+      showNotification({
+        message: 'Письмо отправлено повторно',
+        type: 'success'
+      });
+    } catch (err) {
+      setFormError({
+        message: 'Ошибка при повторной отправке письма',
+        canResend: false
+      });
     }
   };
 
@@ -193,7 +162,8 @@ export default function LoginPage() {
     {
       name: 'email',
       type: 'email',
-      placeholder: 'Email',
+      label: 'Email',
+      placeholder: 'Введите ваш email',
       value: formData.email,
       onChange: (e) => {
         setFormData({...formData, email: e.target.value});
@@ -201,13 +171,15 @@ export default function LoginPage() {
       },
       onBlur: () => handleBlur('email'),
       required: true,
-      error: fieldErrors.email,
-      isValid: touched.email && !fieldErrors.email
+      error: errors.email,
+      isValid: !errors.email && touched.email,
+      'aria-describedby': 'email-error'
     },
     {
       name: 'password',
       type: 'password',
-      placeholder: 'Пароль',
+      label: 'Пароль',
+      placeholder: 'Введите ваш пароль',
       value: formData.password,
       onChange: (e) => {
         setFormData({...formData, password: e.target.value});
@@ -216,23 +188,87 @@ export default function LoginPage() {
       onBlur: () => handleBlur('password'),
       required: true,
       minLength: 6,
-      error: fieldErrors.password,
-      isValid: touched.password && !fieldErrors.password
+      error: errors.password,
+      isValid: !errors.password && touched.password,
+      'aria-describedby': 'password-error'
     }
   ];
 
   return (
-    <AuthForm
-      title="Вход в аккаунт"
-      fields={fields}
-      submitText={isLoading ? 'Вход...' : 'Войти'}
-      error={formError}
-      onSubmit={handleSubmit}
-      linkDescription="Нет аккаунта?"
-      linkText="Зарегистрируйтесь"
-      linkPath="/register"
-      isLoading={isLoading}
-      showForgotPassword={true}
-    />
+    <div className="auth-page-container">
+      <div 
+        className="auth-background" 
+        style={{ backgroundImage: `url(${pddBackground})` }}
+        aria-hidden="true"
+      ></div>
+      
+      <div className="auth-form-container">
+        <div className="auth-form">
+          <h1>Вход в аккаунт</h1>
+          <form onSubmit={handleSubmit} aria-label="Форма авторизации">
+            {fields.map((field) => (
+              <div key={field.name} className="form-group">
+                <label htmlFor={field.name} className="visually-hidden">
+                  {field.label}
+                </label>
+                <input
+                  id={field.name}
+                  type={field.type}
+                  name={field.name}
+                  placeholder={field.placeholder}
+                  value={field.value}
+                  onChange={field.onChange}
+                  onBlur={field.onBlur}
+                  required={field.required}
+                  minLength={field.minLength}
+                  disabled={isLoading}
+                  className={field.error ? 'invalid' : ''}
+                  aria-invalid={!!field.error}
+                  aria-describedby={field.error ? `${field.name}-error` : undefined}
+                />
+                {field.error && (
+                  <div id={`${field.name}-error`} className="field-error" role="alert">
+                    {field.error}
+                  </div>
+                )}
+              </div>
+            ))}
+
+            {formError.message && (
+              <div className="form-error" role="alert">
+                {formError.message}
+                {formError.canResend && (
+                  <button 
+                    type="button"
+                    onClick={handleResendEmail}
+                    className="resend-button"
+                    disabled={isLoading}
+                  >
+                    Отправить письмо повторно
+                  </button>
+                )}
+              </div>
+            )}
+            
+            <div className="forgot-password-link">
+              <Link to="/forgot-password">Забыли пароль?</Link>
+            </div>
+            
+            <button 
+              type="submit" 
+              className="submit-button"
+              disabled={isLoading || !formData.email || !formData.password || !!errors.email || !!errors.password}
+              aria-disabled={isLoading || !formData.email || !formData.password || !!errors.email || !!errors.password}
+            >
+              {isLoading ? 'Вход...' : 'Войти'}
+            </button>
+          </form>
+          
+          <p className="auth-link">
+            Нет аккаунта? <Link to="/register">Зарегистрируйтесь</Link>
+          </p>
+        </div>
+      </div>
+    </div>
   );
 }

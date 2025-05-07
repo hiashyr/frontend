@@ -26,7 +26,7 @@ export default function AuthForm({
       
       <div className="auth-form-container">
         <div className="auth-form">
-          <h2>{title}</h2>
+          <h1>{title}</h1>
           <form onSubmit={onSubmit}>
             {fields.map((field) => (
               <div key={field.name} className="form-group">
