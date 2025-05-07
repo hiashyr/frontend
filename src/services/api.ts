@@ -45,32 +45,18 @@ API.interceptors.request.use((config: InternalAxiosRequestConfig) => {
   return Promise.reject(error);
 });
 
-// Интерцептор для обработки ответов
+// Новый вариант интерцептора
 API.interceptors.response.use(
-  (response: AxiosResponse<ApiResponse>) => {
-    if (response.data?.success === false) {
-      return Promise.reject(response.data.message || 'Request failed');
-    }
-    return response;
-  },
-  (error: AxiosError<ApiError>) => {
+  (response: AxiosResponse) => response, // Просто передаем успешные ответы
+  (error: AxiosError) => {
     if (!error.response) {
-      console.error('Network error:', error.message);
-      return Promise.reject('Network error');
+      console.error('Network error:', error);
+      return Promise.reject({ 
+        error: 'NETWORK_ERROR', 
+        message: error.message 
+      });
     }
-
-    const { status, data } = error.response;
-    
-    if (status === 401) {
-      localStorage.removeItem('token');
-      if (window.location.pathname !== '/login') {
-        window.location.href = '/login?sessionExpired=true';
-      }
-      return Promise.reject('Session expired');
-    }
-
-    const errorMessage = data?.message || error.message || 'Request failed';
-    return Promise.reject(errorMessage);
+    return Promise.reject(error.response.data); // Передаем ВЕСЬ объект ошибки
   }
 );
 

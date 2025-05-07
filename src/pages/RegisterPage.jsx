@@ -131,17 +131,11 @@ export default function RegisterPage() {
     } catch (err) {
       console.error('Registration error:', err);
       
-      if (err.response?.data?.error === 'REGISTRATION_ERROR') {
-        setError(err.response.data.message);
-        
-        setFormData(prev => ({
-          ...prev,
-          emailError: err.response.data.field === 'email' 
-            ? err.response.data.message 
-            : null
-        }));
+      // Новый формат проверки ошибки
+      if (err?.error === 'EMAIL_EXISTS') { // ← Просто проверяем поле error
+        setError(err.message || 'Этот email уже зарегистрирован');
       } else {
-        setError(err.response?.data?.message || 'Ошибка регистрации');
+        setError(err?.message || 'Ошибка регистрации');
       }
     } finally {
       setIsLoading(false);

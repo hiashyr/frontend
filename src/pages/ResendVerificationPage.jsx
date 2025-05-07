@@ -27,26 +27,70 @@ export default function ResendVerificationPage() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!email) return;
     
+    // Валидация email
+    if (!email) {
+      setMessage('Введите email');
+      setMessageType('error');
+      return;
+    }
+  
+    // Проверка формата email
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      setMessage('Введите корректный email');
+      setMessageType('error');
+      return;
+    }
+  
     setIsLoading(true);
     setMessage('');
+    
     try {
       const response = await API.post('/auth/resend-verification', { email });
       
       if (response.data.success) {
-        setMessage('Письмо с подтверждением отправлено на ваш email');
+        setMessage('Письмо с подтверждением отправлено на ваш email. Проверьте папку "Спам", если не видите письма.');
         setMessageType('success');
       }
     } catch (error) {
       console.error('Resend verification error:', error);
       
-      if (error.response?.data?.error === 'EMAIL_ALREADY_VERIFIED') {
+      // Обработка разных типов ошибок
+      const serverError = error.response?.data;
+      
+      if (serverError?.error === 'EMAIL_ALREADY_VERIFIED') {
         setMessage('Этот email уже подтверждён. Вы будете перенаправлены на страницу входа...');
         setMessageType('info');
+        
+        // Запуск таймера для редиректа
         setCountdown(5);
-      } else {
-        setMessage(error.response?.data?.error || 'Ошибка при отправке письма');
+        const timer = setInterval(() => {
+          setCountdown(prev => {
+            if (prev <= 1) {
+              clearInterval(timer);
+              navigate('/login', { 
+                state: { emailVerified: true, email },
+                replace: true 
+              });
+              return 0;
+            }
+            return prev - 1;
+          });
+        }, 1000);
+        
+        return () => clearInterval(timer);
+      } 
+      else if (serverError?.error === 'USER_NOT_FOUND') {
+        setMessage('Пользователь с таким email не найден');
+        setMessageType('error');
+      }
+      else {
+        setMessage(
+          serverError?.message || 
+          error.message || 
+          'Ошибка при отправке письма. Попробуйте позже.'
+        );
         setMessageType('error');
       }
     } finally {
