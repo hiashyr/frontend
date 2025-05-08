@@ -3,6 +3,8 @@ import { useAuth } from '../../contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import api from '../../services/api';
 import LoadingSpinner from '../../components/LoadingSpinner';
+import Header from '../../components/Header';
+import Footer from '../../components/Footer';
 import './ExamPage.css';
 
 export default function ExamPage() {
@@ -13,9 +15,8 @@ export default function ExamPage() {
   const [selectedAnswer, setSelectedAnswer] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [timeLeft, setTimeLeft] = useState(20 * 60); // 20 минут в секундах
+  const [timeLeft, setTimeLeft] = useState(20 * 60);
 
-  // Загрузка экзамена
   useEffect(() => {
     const startExam = async () => {
       try {
@@ -36,7 +37,6 @@ export default function ExamPage() {
     }
   }, [user, navigate]);
 
-  // Таймер
   useEffect(() => {
     if (!examData) return;
 
@@ -68,112 +68,168 @@ export default function ExamPage() {
   };
 
   const handleSubmitAnswer = async () => {
-    if (selectedAnswer === null) return;
-  
+    if (selectedAnswer === null) {
+      setError('Пожалуйста, выберите вариант ответа');
+      return;
+    }
+
     try {
       const currentQuestion = examData.questions[currentQuestionIndex];
       const response = await api.post(`/exam/${examData.attemptId}/answer`, {
         questionId: currentQuestion.id,
-        answerId: selectedAnswer
+        answerId: selectedAnswer,
+        attemptId: examData.attemptId
       });
-  
-      if (response.data.requiresAdditionalQuestions) {
+
+      if (response.requiresAdditionalQuestions) {
         const additionalResponse = await api.post(
           `/exam/${examData.attemptId}/request-additional`
         );
         setExamData(prev => ({
           ...prev,
-          questions: [...prev.questions, ...additionalResponse.data.questions]
+          questions: [...prev.questions, ...additionalResponse.questions]
         }));
       }
-  
-      // Если это не последний вопрос
+
       if (currentQuestionIndex < examData.questions.length - 1) {
         setCurrentQuestionIndex(prev => prev + 1);
         setSelectedAnswer(null);
-      } 
-      // Если это последний вопрос
-      else {
-        try {
-          const finishResponse = await api.post(`/exam/${examData.attemptId}/finish`);
-          
-          // Проверяем, нужны ли дополнительные вопросы
-          if (finishResponse.data.status === 'additional_required') {
-            setExamData(prev => ({
-              ...prev,
-              questions: [...prev.questions, ...finishResponse.data.questions]
-            }));
-            setCurrentQuestionIndex(prev => prev + 1); // Переходим к доп. вопросам
-            setSelectedAnswer(null);
-          } else {
-            // Если доп. вопросы не нужны - переходим к результатам
-            navigate(`/tests/exam/${examData.attemptId}/results`);
-          }
-        } catch (finishError) {
-          console.error('Failed to finish exam:', finishError);
-          setError('Не удалось завершить экзамен');
+        setError(null);
+      } else {
+        const finishResponse = await api.post(`/exam/${examData.attemptId}/finish`);
+        
+        if (finishResponse.status === 'additional_required') {
+          setExamData(prev => ({
+            ...prev,
+            questions: [...prev.questions, ...finishResponse.questions]
+          }));
+          setCurrentQuestionIndex(prev => prev + 1);
+          setSelectedAnswer(null);
+        } else {
+          navigate(`/tests/exam/${examData.attemptId}/results`);
         }
       }
     } catch (err) {
-      console.error('Answer submission error:', err);
       setError(err.response?.data?.error || err.message || 'Ошибка при отправке ответа');
     }
   };
 
-  if (loading) return <LoadingSpinner />;
-  if (error) return <div className="error-message">{error}</div>;
-  if (!examData) return <div>Не удалось загрузить данные экзамена</div>;
+  if (loading) return (
+    <div className="page-container">
+      <Header />
+      <main className="main-content">
+        <LoadingSpinner />
+      </main>
+      <Footer />
+    </div>
+  );
+
+  if (error) return (
+    <div className="page-container">
+      <Header />
+      <main className="main-content">
+        <div className="error-container">
+          <div className="error-message">{error}</div>
+          <button 
+            onClick={() => navigate('/tests/exam')}
+            className="retry-button"
+          >
+            Попробовать снова
+          </button>
+        </div>
+      </main>
+      <Footer />
+    </div>
+  );
+
+  if (!examData) return (
+    <div className="page-container">
+      <Header />
+      <main className="main-content">
+        <div className="error-container">
+          <div>Не удалось загрузить данные экзамена</div>
+          <button 
+            onClick={() => navigate('/tests/exam')}
+            className="retry-button"
+          >
+            Попробовать снова
+          </button>
+        </div>
+      </main>
+      <Footer />
+    </div>
+  );
 
   const currentQuestion = examData.questions[currentQuestionIndex];
   const minutes = Math.floor(timeLeft / 60);
   const seconds = timeLeft % 60;
 
   return (
-    <div className="exam-container">
-      <div className="exam-header">
-        <h2>Экзамен по ПДД</h2>
-        <div className="timer">
-          Осталось времени: {minutes}:{seconds < 10 ? `0${seconds}` : seconds}
-        </div>
-        <div className="progress">
-          Вопрос {currentQuestionIndex + 1} из {examData.questions.length}
-        </div>
-      </div>
-
-      <div className="question-container">
-        <div className="question-text">
-          <p>{currentQuestion.text}</p>
-          {currentQuestion.imageUrl && (
-            <img 
-              src={currentQuestion.imageUrl} 
-              alt="Иллюстрация к вопросу" 
-              className="question-image"
-            />
-          )}
-        </div>
-
-        <div className="answers-list">
-          {currentQuestion.answers.map(answer => (
-            <div 
-              key={answer.id}
-              className={`answer-option ${selectedAnswer === answer.id ? 'selected' : ''}`}
-              onClick={() => handleAnswerSelect(answer.id)}
-            >
-              {answer.text}
+    <div className="page-container">
+      <Header />
+      <main className="main-content">
+        <div className="exam-container">
+          <div className="exam-header">
+            <h2 className="exam-title">Экзамен по ПДД</h2>
+            
+            {/* Новый блок прогресса с уникальными классами */}
+            <div className="exam-progress-wrapper">
+              <div className="exam-progress-item">
+                <span className="exam-progress-label">Вопрос</span>
+                <span className="exam-progress-count">
+                  {currentQuestionIndex + 1}<span className="exam-progress-divider">/</span>{examData.questions.length}
+                </span>
+              </div>
+              
+              <div className="exam-progress-item">
+                <span className="exam-progress-label">Осталось</span>
+                <span className="exam-progress-time">
+                  {minutes}:{seconds < 10 ? `0${seconds}` : seconds}
+                </span>
+              </div>
             </div>
-          ))}
-        </div>
-      </div>
+          </div>
 
-      <div className="exam-controls">
-        <button 
-          onClick={handleSubmitAnswer}
-          disabled={selectedAnswer === null}
-          className="submit-button"
-        >
-          {currentQuestionIndex < examData.questions.length - 1 ? 'Следующий вопрос' : 'Завершить экзамен'}
-        </button>
-      </div>
+          <div className="question-container">
+            <div className="question-text">
+              <p>{currentQuestion.text}</p>
+              {currentQuestion.imageUrl && (
+                <img 
+                  src={currentQuestion.imageUrl} 
+                  alt="Иллюстрация к вопросу" 
+                  className="question-image"
+                />
+              )}
+            </div>
+
+            <div className="answers-list">
+              {currentQuestion.answers.map(answer => (
+                <div 
+                  key={answer.id}
+                  className={`answer-option ${selectedAnswer === answer.id ? 'selected' : ''}`}
+                  onClick={() => handleAnswerSelect(answer.id)}
+                >
+                  {answer.text}
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {error && <div className="error-message">{error}</div>}
+
+          <div className="exam-controls">
+            <button 
+              onClick={handleSubmitAnswer}
+              disabled={selectedAnswer === null}
+              className={`submit-button ${selectedAnswer === null ? 'disabled' : ''}`}
+            >
+              {currentQuestionIndex < examData.questions.length - 1 ? 
+                'Следующий вопрос' : 'Завершить экзамен'}
+            </button>
+          </div>
+        </div>
+      </main>
+      <Footer />
     </div>
   );
 }
