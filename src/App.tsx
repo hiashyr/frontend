@@ -15,6 +15,8 @@ import Settings from './pages/profile/Settings';
 import PrivateRoute from './components/PrivateRoute';
 import { AuthProvider } from './contexts/AuthContext';
 import ErrorBoundary from './components/ErrorBoundary';
+import ExamPage from './pages/tests/ExamPage';
+import ExamResultsPage from './components/tests/ExamResultsPage';
 
 export default function App() {
   return (
@@ -38,6 +40,10 @@ export default function App() {
                   <Route path="settings" element={<Settings />} />
                   <Route index element={<Navigate to="results" replace />} />
                 </Route>
+
+                {/* Экзамен и тесты */}
+                <Route path="/tests/exam" element={<ExamPage />} />
+                <Route path="/tests/exam/:attemptId/results" element={<ExamResultsPage />} />
 
                 {/* Admin routes */}
                 <Route path="/admin" element={<AdminLayout />}>

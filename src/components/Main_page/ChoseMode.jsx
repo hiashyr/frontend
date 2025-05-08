@@ -49,7 +49,7 @@ export default function ChoseMode() {
 
           {/* Карточка 2 */}
           <Link 
-            to="/ticket-mode" 
+            to="/tests/exam" 
             className="mode-card"
             onClick={handleModeClick}
           >
