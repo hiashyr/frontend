@@ -1,27 +1,70 @@
+import { useState, useEffect } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
-import './profile-page.css'
+import api from '../../services/api';
+import TestCharts from '../../components/profile/TestCharts';
+import TestHistory from '../../components/profile/TestHistory';
+import EmptyState from '../../components/profile/EmptyState';
+import LoadingSpinner from '../../components/LoadingSpinner';
+import './profile-page.css';
 
 export default function TestResults() {
   const { user } = useAuth();
+  const [stats, setStats] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    const fetchStats = async () => {
+      try {
+        setLoading(true);
+        const response = await api.get('/exam/stats');
+        
+        // Проверяем, есть ли данные о тестах
+        if (response.data?.overall?.totalTests === 0) {
+          setStats(null); // Нет данных о тестах
+        } else {
+          setStats(response.data);
+        }
+      } catch (err) {
+        console.error('Ошибка загрузки статистики:', err);
+        setError('Не удалось загрузить статистику');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (user) {
+      fetchStats();
+    }
+  }, [user]);
+
+  if (loading) {
+    return (
+      <div className="test-results-loading">
+        <LoadingSpinner />
+        <p>Загрузка вашей статистики...</p>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="test-results-error">
+        <p>{error}</p>
+      </div>
+    );
+  }
+
+  // Если данных нет (пользователь не проходил тесты)
+  if (!stats) {
+    return <EmptyState />;
+  }
 
   return (
-    <div className="test-results">
-      <h2>Результаты тестов</h2>
-      <div className="stats-grid">
-        <div className="stat-card">
-          <h3>Всего пройдено тестов</h3>
-          <p>{user.testStats?.totalTests || 0}</p>
-        </div>
-        <div className="stat-card">
-          <h3>Средний результат</h3>
-          <p>{user.testStats?.averageScore || 0}%</p>
-        </div>
-      </div>
-      
-      <div className="recent-tests">
-        <h3>Последние попытки</h3>
-        {/* Здесь будет список тестов */}
-      </div>
+    <div className="test-results-container">
+      <h2>Ваша статистика</h2>
+      <TestCharts stats={stats} />
+      <TestHistory attempts={stats.recent} />
     </div>
   );
 }

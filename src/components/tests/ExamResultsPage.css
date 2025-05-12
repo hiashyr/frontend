@@ -164,7 +164,6 @@
 }
 
 .user-answer, .correct-answer {
-  display: flex;
   margin-top: 0.5rem;
 }
 
