@@ -14,17 +14,25 @@ export default function TopicSelection() {
   useEffect(() => {
     const fetchTopics = async () => {
       try {
+        setLoading(true);
         const response = await api.get('/topics');
-        setTopics(response.data || []);
+        
+        // Убедимся, что получаем массив из data
+        if (response.data && response.data.success && Array.isArray(response.data.data)) {
+          setTopics(response.data.data);
+        } else {
+          setTopics([]); // На случай если структура ответа неверная
+          console.error('Unexpected response format:', response.data);
+        }
       } catch (err) {
-        setError(err.message || 'Ошибка загрузки тем');
+        setError(err.response?.data?.error || err.message || 'Ошибка загрузки тем');
       } finally {
         setLoading(false);
       }
     };
 
     if (user) fetchTopics();
-    }, [user]);
+  }, [user]);
 
     const startTest = async (topicId) => {
         try {

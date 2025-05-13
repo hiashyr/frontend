@@ -16,7 +16,7 @@ import PrivateRoute from './components/PrivateRoute';
 import { AuthProvider } from './contexts/AuthContext';
 import ErrorBoundary from './components/ErrorBoundary';
 import ExamPage from './pages/tests/ExamPage';
-import ExamResultsPage from './components/tests/ExamResultsPage';
+import TopicResultsPage from './components/tests/TopicResultsPage';
 import TopicsPage from './pages/tests/TopicsPage';
 import TopicTestPage from './pages/tests/TopicTestPage'
 
@@ -48,7 +48,7 @@ export default function App() {
                 <Route path="/tests/topics/:topicId" element={<TopicTestPage />} />
                 <Route path="/tests/topics/:topicId/attempt/:attemptId" element={<TopicTestPage />} />
                 <Route path="/tests/exam" element={<ExamPage />} />
-                <Route path="/tests/exam/:attemptId/results" element={<ExamResultsPage />} />
+                <Route path="/tests/topics/:topicId/attempt/:attemptId/results" element={<TopicResultsPage />} />
 
                 {/* Admin routes */}
                 <Route path="/admin" element={<AdminLayout />}>
