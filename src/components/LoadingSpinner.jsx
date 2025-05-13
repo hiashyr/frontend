@@ -1,15 +1,12 @@
 import './LoadingSpinner.css';
 
-export default function LoadingSpinner({ fullPage = false }) {
+export default function LoadingSpinner({ fullPage = false, text = "Загрузка..." }) {
   return (
     <div className={`loading-spinner-container ${fullPage ? 'full-page' : ''}`}>
       <div className="loading-spinner">
-        <div></div>
-        <div></div>
-        <div></div>
-        <div></div>
+        <div className="spinner-circle"></div>
       </div>
-      <p className="loading-text">Загрузка...</p>
+      {text && <p className="loading-text">{text}</p>}
     </div>
   );
 }

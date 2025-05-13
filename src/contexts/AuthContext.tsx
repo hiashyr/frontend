@@ -196,7 +196,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       {isLoading ? (
         <div className="full-page-loading">
           <LoadingSpinner />
-          <p>Проверка авторизации...</p>
         </div>
       ) : (
         children
