@@ -68,11 +68,6 @@ export default function ExamPage() {
   };
 
   const handleSubmitAnswer = async () => {
-    if (selectedAnswer === null) {
-      setError('Пожалуйста, выберите вариант ответа');
-      return;
-    }
-
     try {
       const currentQuestion = examData.questions[currentQuestionIndex];
       const response = await api.post(`/exam/${examData.attemptId}/answer`, {
@@ -81,34 +76,25 @@ export default function ExamPage() {
         attemptId: examData.attemptId
       });
 
-      if (response.requiresAdditionalQuestions) {
-        const additionalResponse = await api.post(
-          `/exam/${examData.attemptId}/request-additional`
-        );
+      if (response.additionalQuestions) {
         setExamData(prev => ({
           ...prev,
-          questions: [...prev.questions, ...additionalResponse.questions]
+          questions: [...prev.questions, ...response.additionalQuestions.questions],
+          timeLimit: response.additionalQuestions.timeLimit
         }));
+        setTimeLeft(response.additionalQuestions.timeLimit);
+        setSelectedAnswer(null);
+        return;
       }
 
       if (currentQuestionIndex < examData.questions.length - 1) {
         setCurrentQuestionIndex(prev => prev + 1);
-        setSelectedAnswer(null);
-        setError(null);
       } else {
-        const finishResponse = await api.post(`/exam/${examData.attemptId}/finish`);
-        
-        if (finishResponse.status === 'additional_required') {
-          setExamData(prev => ({
-            ...prev,
-            questions: [...prev.questions, ...finishResponse.questions]
-          }));
-          setCurrentQuestionIndex(prev => prev + 1);
-          setSelectedAnswer(null);
-        } else {
-          navigate(`/tests/exam/${examData.attemptId}/results`);
-        }
+        await api.post(`/exam/${examData.attemptId}/finish`);
+        navigate(`/tests/exam/${examData.attemptId}/results`);
       }
+
+      setSelectedAnswer(null);
     } catch (err) {
       setError(err.response?.data?.error || err.message || 'Ошибка при отправке ответа');
     }

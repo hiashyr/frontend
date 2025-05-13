@@ -30,7 +30,7 @@ export default function ChoseMode() {
         <div className="mode-cards-container">
           {/* Карточка 1 */}
           <Link 
-            to="/exam-mode" 
+            to="/tests/topics" 
             className="mode-card"
             onClick={handleModeClick}
           >

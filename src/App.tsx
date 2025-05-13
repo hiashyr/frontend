@@ -17,6 +17,8 @@ import { AuthProvider } from './contexts/AuthContext';
 import ErrorBoundary from './components/ErrorBoundary';
 import ExamPage from './pages/tests/ExamPage';
 import ExamResultsPage from './components/tests/ExamResultsPage';
+import TopicsPage from './pages/tests/TopicsPage';
+import TopicTestPage from './pages/tests/TopicTestPage'
 
 export default function App() {
   return (
@@ -42,6 +44,9 @@ export default function App() {
                 </Route>
 
                 {/* Экзамен и тесты */}
+                <Route path="/tests/topics" element={<TopicsPage />} />
+                <Route path="/tests/topics/:topicId" element={<TopicTestPage />} />
+                <Route path="/tests/topics/:topicId/attempt/:attemptId" element={<TopicTestPage />} />
                 <Route path="/tests/exam" element={<ExamPage />} />
                 <Route path="/tests/exam/:attemptId/results" element={<ExamResultsPage />} />
 

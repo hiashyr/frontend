@@ -153,7 +153,7 @@ export default function ExamResultsPage() {
   }
 
   const isPassed = results.status === 'passed';
-  const totalQuestions = results.results.length;
+  const totalQuestions = results.correctAnswers + results.incorrectAnswers; // Вместо results.results.length
   const correctPercentage = totalQuestions > 0
     ? Math.round((results.correctAnswers / totalQuestions) * 100)
     : 0;

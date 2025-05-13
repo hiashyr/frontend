@@ -1,0 +1,18 @@
+.topic-test-container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.progress {
+  text-align: center;
+  margin: 15px 0;
+  color: #7f8c8d;
+  font-size: 0.9em;
+}
+
+.error {
+  color: #e74c3c;
+  text-align: center;
+  margin: 20px;
+}
