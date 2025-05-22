@@ -57,7 +57,7 @@ export default function ExamPage() {
   const handleTimeExpired = async () => {
     try {
       await api.post(`/exam/${examData.attemptId}/finish`);
-      navigate(`/tests/exam/${examData.attemptId}/results`);
+      navigate(`/exam/${examData.attemptId}/results`);
     } catch (err) {
       setError('Время вышло! Не удалось завершить экзамен');
     }
@@ -91,7 +91,7 @@ export default function ExamPage() {
         setCurrentQuestionIndex(prev => prev + 1);
       } else {
         await api.post(`/exam/${examData.attemptId}/finish`);
-        navigate(`/tests/exam/${examData.attemptId}/results`);
+        navigate(`/exam/${examData.attemptId}/results`);
       }
 
       setSelectedAnswer(null);
@@ -181,9 +181,13 @@ export default function ExamPage() {
               <p>{currentQuestion.text}</p>
               {currentQuestion.imageUrl && (
                 <img 
-                  src={currentQuestion.imageUrl} 
+                  src={`${process.env.REACT_APP_API_URL || 'http://localhost:5000'}${currentQuestion.imageUrl}`}
                   alt="Иллюстрация к вопросу" 
                   className="question-image"
+                  onError={(e) => {
+                    console.error('Failed to load question image:', currentQuestion.imageUrl);
+                    e.target.style.display = 'none';
+                  }}
                 />
               )}
             </div>
