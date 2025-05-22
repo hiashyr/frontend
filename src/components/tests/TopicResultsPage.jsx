@@ -38,24 +38,24 @@ export default function TopicResultsPage() {
         'correctAnswers', 
         'incorrectAnswers', 
         'timeSpent',
-        'userAnswers'
+        'results'
       ];
       
-      const missingFields = requiredFields.filter(field => !(field in attemptResponse.data));
+      const missingFields = requiredFields.filter(field => !(field in attemptResponse.data.data));
       if (missingFields.length > 0) {
         throw new Error(`Отсутствуют обязательные поля: ${missingFields.join(', ')}`);
       }
 
-      if (!['passed', 'failed', 'in_progress'].includes(attemptResponse.data.status)) {
+      if (!['passed', 'failed', 'in_progress'].includes(attemptResponse.data.data.status)) {
         throw new Error('Некорректный статус тестирования');
       }
 
-      if (!Array.isArray(attemptResponse.data.userAnswers)) {
+      if (!Array.isArray(attemptResponse.data.data.results)) {
         throw new Error('Ответы пользователя должны быть массивом');
       }
 
-      setResults(attemptResponse.data);
-      setTopic(topicResponse.data);
+      setResults(attemptResponse.data.data);
+      setTopic(topicResponse.data.data);
     } catch (err) {
       console.error('Ошибка загрузки результатов:', err);
       const errorMessage = err.response?.data?.error || 
@@ -91,8 +91,31 @@ export default function TopicResultsPage() {
     fetchResults();
   }, [attemptId, topicId, user, navigate, fetchResults]);
 
-  const handleRetry = () => {
-    navigate(`/tests/topics/${topicId}/start`);
+  const handleRetry = async () => {
+    try {
+      // Создаем новую попытку тестирования
+      const startResponse = await api.post(`/topics/${topicId}/start`);
+      
+      if (!startResponse.data?.success || !startResponse.data?.data?.attemptId) {
+        throw new Error('Не удалось создать новую попытку тестирования');
+      }
+
+      const newAttemptId = startResponse.data.data.attemptId;
+      
+      // Переходим к новому тесту
+      navigate(`/tests/topics/${topicId}/attempt/${newAttemptId}`);
+    } catch (err) {
+      console.error('Ошибка при создании новой попытки:', err);
+      const errorMessage = err.response?.data?.error || 
+                          err.message || 
+                          'Не удалось начать новое тестирование';
+      
+      setError(errorMessage);
+      showNotification({
+        message: errorMessage,
+        type: 'error'
+      });
+    }
   };
 
   const handleBackToTopics = () => {
@@ -176,7 +199,7 @@ export default function TopicResultsPage() {
       <main className="main-content">
         <div className="topic-results-container">
           <div className={`topic-status ${isPassed ? 'passed' : 'failed'}`}>
-            <h2>Тестирование по теме: {topic.name}</h2>
+            <h2>Тестирование по теме: {results.topicName}</h2>
             <h3>{isPassed ? 'Успешно завершено!' : 'Не завершено'}</h3>
             <div className="status-icon" aria-hidden="true">
               {isPassed ? '✓' : '✗'}
@@ -203,11 +226,11 @@ export default function TopicResultsPage() {
 
           <div className="detailed-results">
             <h3>Детализация ответов</h3>
-            {results.userAnswers.length === 0 ? (
+            {results.results.length === 0 ? (
               <div className="no-results">Нет данных о результатах</div>
             ) : (
               <div className="questions-list">
-                {results.userAnswers.map((result, index) => (
+                {results.results.map((result, index) => (
                   <div 
                     key={`${result.questionId}-${index}`}
                     className={`question-item ${result.isCorrect ? 'correct' : 'incorrect'}`}
@@ -217,6 +240,17 @@ export default function TopicResultsPage() {
                       <span>{result.isCorrect ? '✓ Верно' : '✗ Ошибка'}</span>
                     </div>
                     <p className="question-text">{result.questionText}</p>
+                    {result.imageUrl && (
+                      <img 
+                        src={`${process.env.REACT_APP_API_URL || 'http://localhost:5000'}${result.imageUrl}`}
+                        alt="Иллюстрация к вопросу" 
+                        className="question-image"
+                        onError={(e) => {
+                          console.error('Failed to load question image:', result.imageUrl);
+                          e.target.style.display = 'none';
+                        }}
+                      />
+                    )}
                     <div className="user-answer">
                       <span className="answer-label">Ваш ответ:</span>
                       <span className="answer-text">{result.userAnswerText}</span>

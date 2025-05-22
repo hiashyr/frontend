@@ -58,7 +58,7 @@ export default function LoginPage() {
         throw new Error('Неполные данные от сервера');
       }
 
-      login(data.token, data.user);
+      await login(data.token, data.user);
       
       showNotification({
         message: 'Авторизация прошла успешно!',

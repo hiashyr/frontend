@@ -2,7 +2,6 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import api from '../../services/api';
-import QuestionCard from '../../components/tests/QuestionCard';
 import LoadingSpinner from '../../components/LoadingSpinner';
 import Header from '../../components/Header';
 import Footer from '../../components/Footer';
@@ -17,7 +16,7 @@ export default function TopicTestPage() {
   const [selectedAnswer, setSelectedAnswer] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [timeLeft, setTimeLeft] = useState(20 * 60);
+  const [timeLeft, setTimeLeft] = useState(0);
 
   useEffect(() => {
     const loadTest = async () => {
@@ -28,20 +27,41 @@ export default function TopicTestPage() {
 
         const response = await api.get(`/topics/${topicId}/attempt/${attemptId}`);
         
-        // Добавляем проверку структуры ответа
-        if (!response.data || !response.data.questions || !Array.isArray(response.data.questions)) {
-          throw new Error('Неверный формат данных теста');
+        // Проверяем структуру ответа
+        if (!response.data?.success || !response.data?.data) {
+          throw new Error('Неверный формат ответа от сервера');
+        }
+
+        const { data } = response.data;
+
+        // Проверяем наличие всех необходимых полей
+        if (!data.questions || !Array.isArray(data.questions) || !data.topicName || !data.attemptId) {
+          throw new Error('Отсутствуют необходимые данные теста');
+        }
+
+        // Проверяем структуру каждого вопроса
+        const invalidQuestion = data.questions.find(q => !q.id || !q.text || !Array.isArray(q.answers));
+        if (invalidQuestion) {
+          throw new Error('Некорректная структура вопросов');
         }
 
         setTestData({
-          ...response.data,
-          questions: response.data.questions || [] // Гарантируем массив
+          topicName: data.topicName,
+          questions: data.questions,
+          attemptId: data.attemptId,
+          progress: data.progress || { answered: 0, total: data.questions.length }
         });
-        setTimeLeft(20 * 60);
+        
+        // Устанавливаем время в зависимости от количества вопросов (1 минута на вопрос)
+        setTimeLeft(data.questions.length * 60); // 60 секунд * количество вопросов
       } catch (err) {
         console.error('Ошибка загрузки теста:', err);
-        setError(err.response?.data?.error || err.message || 'Ошибка загрузки теста');
-        navigate(`/tests/topics/${topicId}`);
+        const errorMessage = err.response?.data?.error || err.message || 'Ошибка загрузки теста';
+        setError(errorMessage);
+        // Добавляем небольшую задержку перед редиректом
+        setTimeout(() => {
+          navigate('/tests/topics');
+        }, 2000);
       } finally {
         setLoading(false);
       }
@@ -81,27 +101,42 @@ export default function TopicTestPage() {
   };
 
   const handleSubmitAnswer = async () => {
+    if (!selectedAnswer) return;
+
     try {
       const currentQuestion = testData.questions[currentQuestionIndex];
-      await api.post(`/topics/${topicId}/attempt/${attemptId}/answer`, {
+      
+      // Отправляем ответ
+      const response = await api.post(`/topics/${topicId}/attempt/${attemptId}/answer`, {
         questionId: currentQuestion.id,
         answerId: selectedAnswer
       });
 
-      if (currentQuestionIndex < testData.questions.length - 1) {
-          setCurrentQuestionIndex(currentQuestionIndex + 1);
-      } else {
-          try {
-              await api.post(`/topics/${topicId}/attempt/${attemptId}/finish`);
-              navigate(`/tests/topics/${topicId}/attempt/${attemptId}/results`);
-          } catch (err) {
-              setError(err.response?.data?.error || err.message || 'Ошибка завершения теста');
-          }
+      if (!response.data?.success) {
+        throw new Error(response.data?.error || 'Ошибка при отправке ответа');
       }
 
-      setSelectedAnswer(null);
+      // Если это последний вопрос
+      if (currentQuestionIndex === testData.questions.length - 1) {
+        const finishResponse = await api.post(`/topics/${topicId}/attempt/${attemptId}/finish`);
+        
+        if (!finishResponse.data?.success) {
+          throw new Error('Не удалось завершить тест');
+        }
+
+        navigate(`/tests/topics/${topicId}/attempt/${attemptId}/results`);
+      } else {
+        // Переходим к следующему вопросу
+        setCurrentQuestionIndex(prev => prev + 1);
+        setSelectedAnswer(null);
+      }
     } catch (err) {
-      setError(err.response?.data?.error || err.message || 'Ошибка при отправке ответа');
+      console.error('Ошибка при обработке ответа:', err);
+      const errorMessage = err.response?.data?.error || 
+                          err.response?.data?.message || 
+                          err.message || 
+                          'Ошибка при отправке ответа';
+      setError(errorMessage);
     }
   };
 
@@ -137,7 +172,6 @@ export default function TopicTestPage() {
     );
   }
 
-  // Добавляем проверку на наличие вопросов
   if (!testData || !testData.questions || testData.questions.length === 0) {
     return (
       <div className="page-container">
@@ -161,27 +195,6 @@ export default function TopicTestPage() {
   const currentQuestion = testData.questions[currentQuestionIndex];
   const minutes = Math.floor(timeLeft / 60);
   const seconds = timeLeft % 60;
-
-  // Добавляем проверку на существование currentQuestion
-  if (!currentQuestion) {
-    return (
-      <div className="page-container">
-        <Header />
-        <main className="main-content">
-          <div className="error-container">
-            <div>Ошибка загрузки вопроса</div>
-            <button 
-              onClick={() => navigate(`/tests/topics/${topicId}`)}
-              className="retry-button"
-            >
-              Вернуться к темам
-            </button>
-          </div>
-        </main>
-        <Footer />
-      </div>
-    );
-  }
 
   return (
     <div className="page-container">
@@ -209,11 +222,32 @@ export default function TopicTestPage() {
           </div>
 
           <div className="question-container">
-            <QuestionCard 
-              question={currentQuestion}
-              answers={currentQuestion.answers}
-              onAnswerSelect={handleAnswerSelect}
-            />
+            <div className="question-text">
+              <p>{currentQuestion.text}</p>
+              {currentQuestion.imageUrl && (
+                <img 
+                  src={`${process.env.REACT_APP_API_URL || 'http://localhost:5000'}${currentQuestion.imageUrl}`}
+                  alt="Иллюстрация к вопросу" 
+                  className="question-image"
+                  onError={(e) => {
+                    console.error('Failed to load question image:', currentQuestion.imageUrl);
+                    e.target.style.display = 'none';
+                  }}
+                />
+              )}
+            </div>
+
+            <div className="answers-list">
+              {currentQuestion.answers.map(answer => (
+                <div 
+                  key={answer.id}
+                  className={`answer-option ${selectedAnswer === answer.id ? 'selected' : ''}`}
+                  onClick={() => handleAnswerSelect(answer.id)}
+                >
+                  {answer.text}
+                </div>
+              ))}
+            </div>
           </div>
 
           {error && <div className="error-message">{error}</div>}

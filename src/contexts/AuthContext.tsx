@@ -38,6 +38,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [isInitialized, setIsInitialized] = useState(false);
   const navigate = useNavigate();
 
   // Функция для нормализации URL аватара
@@ -82,17 +83,21 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   }, []);
 
-  // Проверка авторизации
+  // Проверка авторизации только при первой загрузке
   useEffect(() => {
     const verifyAuth = async () => {
       const token = localStorage.getItem('token');
       if (!token) {
         setIsLoading(false);
+        setIsInitialized(true);
         return;
       }
   
       try {
-        API.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+        if (!API.defaults.headers.common['Authorization']) {
+          API.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+        }
+        
         const userData = await fetchUserData();
         
         // Дополнительная проверка для защиты от невалидных состояний
@@ -109,19 +114,28 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         }
       } finally {
         setIsLoading(false);
+        setIsInitialized(true);
       }
     };
   
-    verifyAuth();
-  }, [navigate, fetchUserData]);
+    if (!isInitialized) {
+      verifyAuth();
+    }
+  }, [navigate, fetchUserData, isInitialized]);
 
-  const login = (token: string, userData: User) => {
+  const login = async (token: string, userData: User) => {
     localStorage.setItem('token', token);
     API.defaults.headers.common['Authorization'] = `Bearer ${token}`;
     
-    // Нормализуем URL аватара перед сохранением
-    const normalizedUser = normalizeAvatarUrl(userData);
-    setUser(normalizedUser);
+    try {
+      // Получаем актуальные данные пользователя
+      await fetchUserData();
+    } catch (err) {
+      console.error('Failed to fetch user data after login:', err);
+      // В случае ошибки используем данные из ответа авторизации
+      const normalizedUser = normalizeAvatarUrl(userData);
+      setUser(normalizedUser);
+    }
   };
 
   const logout = useCallback(() => {
@@ -186,6 +200,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     updateUser,
     refreshUser,
   };
+
+  if (!isInitialized) {
+    return (
+      <div className="full-page-loading">
+        <LoadingSpinner />
+      </div>
+    );
+  }
 
   return (
     <AuthContext.Provider value={value}>

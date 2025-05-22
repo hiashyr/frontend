@@ -36,13 +36,31 @@ export default function TopicSelection() {
 
     const startTest = async (topicId) => {
         try {
-            const response = await api.post(`/topics/${topicId}/start`);
-            if (!response.data?.data?.attemptId) {
-                throw new Error('Не удалось получить ID попытки');
+            // Сначала создаем новую попытку
+            const startResponse = await api.post(`/topics/${topicId}/start`);
+            
+            if (!startResponse.data?.success || !startResponse.data?.data?.attemptId) {
+                throw new Error('Не удалось создать попытку тестирования');
             }
-            navigate(`/tests/topics/${topicId}/attempt/${response.data.data.attemptId}`);
+
+            const attemptId = startResponse.data.data.attemptId;
+
+            // Проверяем, что попытка создана успешно
+            const checkResponse = await api.get(`/topics/${topicId}/attempt/${attemptId}`);
+            
+            if (!checkResponse.data?.success || !checkResponse.data?.data?.questions) {
+                throw new Error('Не удалось загрузить вопросы теста');
+            }
+
+            // Если все успешно, переходим к тесту
+            navigate(`/tests/topics/${topicId}/attempt/${attemptId}`);
         } catch (err) {
-            setError(err.response?.data?.error || err.message || 'Ошибка начала теста');
+            console.error('Ошибка начала теста:', err);
+            const errorMessage = err.response?.data?.error || 
+                               err.response?.data?.message || 
+                               err.message || 
+                               'Ошибка начала теста';
+            setError(errorMessage);
         }
     };
 
@@ -59,6 +77,7 @@ export default function TopicSelection() {
             <p className="description">{topic.description}</p>
             <div className="stats">
               <span>Вопросов: {topic.questions_count}</span>
+              <span>Время: {topic.questions_count} мин</span>
               <span>Статус: {getStatusText(topic.status)}</span>
             </div>
             <button 
