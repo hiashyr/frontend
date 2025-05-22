@@ -1,5 +1,5 @@
 import { useNavigate, Link } from 'react-router-dom';
-import { useState, useMemo } from 'react';
+import { useState } from 'react';
 import API from '../services/api';
 import { useForm } from '../hooks/useForm';
 import { validateEmail, validatePassword, validatePasswordConfirm, EMAIL_REGEX, PASSWORD_REGEX } from '../utils/validation';
@@ -38,33 +38,6 @@ export default function RegisterPage() {
     }
   });
 
-  // Проверка требований к паролю
-  const passwordRequirements = useMemo(() => {
-    const password = fields.password.value;
-    return [
-      {
-        text: 'Минимум 8 символов',
-        isMet: password.length >= 8
-      },
-      {
-        text: 'Хотя бы одна заглавная буква (A-Z)',
-        isMet: /[A-Z]/.test(password)
-      },
-      {
-        text: 'Хотя бы одна строчная буква (a-z)',
-        isMet: /[a-z]/.test(password)
-      },
-      {
-        text: 'Хотя бы одна цифра (0-9)',
-        isMet: /[0-9]/.test(password)
-      },
-      {
-        text: 'Хотя бы один специальный символ (!@#$%^&*)',
-        isMet: /[!@#$%^&*]/.test(password)
-      }
-    ];
-  }, [fields.password.value]);
-
   const startCountdown = () => {
     const timer = setInterval(() => {
       setCountdown(prev => {
@@ -94,7 +67,7 @@ export default function RegisterPage() {
     setServerError('');
     
     try {
-      const checkEmailResponse = await API.post('/api/users/check-email', {
+      const checkEmailResponse = await API.post('/users/check-email', {
         email: fields.email.value
       });
 
@@ -109,7 +82,7 @@ export default function RegisterPage() {
         return;
       }
 
-      const response = await API.post('/api/users/register', {
+      const response = await API.post('/users/register', {
         email: fields.email.value,
         password: fields.password.value
       });
@@ -302,4 +275,4 @@ export default function RegisterPage() {
       </div>
     </div>
   );
-} 
+}

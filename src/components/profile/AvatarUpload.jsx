@@ -15,8 +15,6 @@ const AvatarUpload = () => {
 
   const handleFileChange = async (e) => {
     const file = e.target.files[0];
-    console.log('Selected file:', file.name, file.size, file.type);
-    
     if (!file) return;
     
     // Валидация на клиенте
@@ -53,27 +51,31 @@ const AvatarUpload = () => {
       const { data } = await API.post('/users/upload-avatar', formData, {
         headers: { 'Content-Type': 'multipart/form-data' }
       });
-      console.log('Server response:', data);
       
       // Исправляем путь к аватару, убирая /api из начала пути
       const avatarUrl = data.avatarUrl.replace('/api/', '/');
-      
-      // Обновляем пользователя с корректным URL
-      updateUser({ 
-        ...user, 
-        avatarUrl: avatarUrl 
-      });
-      
+
+      // Сначала показываем уведомление
       showNotification({
         message: 'Аватар успешно обновлен!',
         type: 'success',
         duration: 3000
       });
-    } catch (err) {
-      console.error('Upload failed:', {
-        response: err.response,
-        message: err.message
+      
+      // Затем обновляем данные пользователя
+      updateUser({ 
+        ...user, 
+        avatarUrl: avatarUrl 
       });
+
+      // Получаем актуальные данные пользователя без обновления страницы
+      const { data: userData } = await API.get('/users/me');
+      if (userData) {
+        updateUser(userData);
+      }
+
+    } catch (err) {
+      console.error('Ошибка загрузки аватара:', err.message);
       setPreviewUrl(null);
       showNotification({
         message: err.response?.data?.error || 'Ошибка загрузки аватара',
@@ -105,7 +107,7 @@ const AvatarUpload = () => {
             className="avatar-image"
             onError={(e) => {
               e.target.src = defaultAvatar;
-              console.error('Failed to load avatar:', user.avatarUrl);
+              console.error('Не удалось загрузить аватар');
             }}
           />
         ) : (
