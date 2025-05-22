@@ -55,13 +55,13 @@ const AvatarUpload = () => {
       });
       console.log('Server response:', data);
       
-      // Добавляем базовый URL к полученному пути
-      const fullAvatarUrl = `${process.env.REACT_APP_API_URL || ''}${data.avatarUrl}`;
+      // Исправляем путь к аватару, убирая /api из начала пути
+      const avatarUrl = data.avatarUrl.replace('/api/', '/');
       
-      // Обновляем пользователя с полным URL
+      // Обновляем пользователя с корректным URL
       updateUser({ 
         ...user, 
-        avatarUrl: fullAvatarUrl 
+        avatarUrl: avatarUrl 
       });
       
       showNotification({
@@ -99,7 +99,15 @@ const AvatarUpload = () => {
         {previewUrl ? (
           <img src={previewUrl} alt="Превью аватара" className="avatar-image" />
         ) : user?.avatarUrl ? (
-          <img src={user.avatarUrl} alt="Аватар пользователя" className="avatar-image" />
+          <img 
+            src={user.avatarUrl} 
+            alt="Аватар пользователя" 
+            className="avatar-image"
+            onError={(e) => {
+              e.target.src = defaultAvatar;
+              console.error('Failed to load avatar:', user.avatarUrl);
+            }}
+          />
         ) : (
           <div className="avatar-placeholder">
             <FiUser className="placeholder-icon" />

@@ -122,10 +122,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     // Нормализуем URL аватара перед сохранением
     const normalizedUser = normalizeAvatarUrl(userData);
     setUser(normalizedUser);
-    
-    navigate(normalizedUser.role === 'admin' ? '/admin/dashboard' : '/profile', { 
-      replace: true 
-    });
   };
 
   const logout = useCallback(() => {

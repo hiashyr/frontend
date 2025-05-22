@@ -37,11 +37,7 @@ export default function App() {
 
               {/* Protected routes */}
               <Route element={<PrivateRoute />}>
-                <Route path="/profile" element={<ProfilePage />}>
-                  <Route path="results" element={<TestResults />} />
-                  <Route path="settings" element={<Settings />} />
-                  <Route index element={<Navigate to="results" replace />} />
-                </Route>
+                <Route path="/profile/*" element={<ProfilePage />} />
 
                 {/* Экзамен и тесты */}
                 <Route path="/tests/topics" element={<TopicsPage />} />

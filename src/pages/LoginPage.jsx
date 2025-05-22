@@ -109,15 +109,13 @@ export default function LoginPage() {
       const redirectPath = location.state?.from?.pathname || 
                          (data.user.role === 'admin' ? '/admin/dashboard' : '/');
       
-      setTimeout(() => {
-        navigate(redirectPath, {
-          replace: true,
-          state: { 
-            fromLogin: true,
-            userData: data.user 
-          }
-        });
-      }, 1000);
+      navigate(redirectPath, {
+        replace: true,
+        state: { 
+          fromLogin: true,
+          userData: data.user 
+        }
+      });
 
     } catch (err) {
       console.error('Ошибка авторизации:', err);

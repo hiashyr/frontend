@@ -1,4 +1,4 @@
-import { Routes, Route, Outlet, Navigate, NavLink, useNavigate } from 'react-router-dom';
+import { Routes, Route, Navigate, NavLink, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import TestResults from './TestResults';
 import Settings from './Settings';
@@ -8,6 +8,7 @@ import './profile-page.css';
 export default function ProfilePage() {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
 
   if (!user) {
     return <Navigate to="/login" replace />;
@@ -29,10 +30,16 @@ export default function ProfilePage() {
       
       <div className="profile-sidebar">
         <nav className="profile-nav">
-          <NavLink to="results" className={({isActive}) => isActive ? 'active' : ''}>
+          <NavLink 
+            to="/profile/results" 
+            className={({isActive}) => isActive ? 'active' : ''}
+          >
             Результаты тестов
           </NavLink>
-          <NavLink to="settings" className={({isActive}) => isActive ? 'active' : ''}>
+          <NavLink 
+            to="/profile/settings" 
+            className={({isActive}) => isActive ? 'active' : ''}
+          >
             Настройки
           </NavLink>
         </nav>
@@ -42,7 +49,7 @@ export default function ProfilePage() {
         <Routes>
           <Route path="results" element={<TestResults />} />
           <Route path="settings" element={<Settings />} />
-          <Route index element={<Navigate to="results" replace />} />
+          <Route path="/" element={<Navigate to="results" replace />} />
         </Routes>
       </div>
     </div>
