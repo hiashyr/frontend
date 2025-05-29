@@ -15,10 +15,32 @@ const NotificationContext = createContext<NotificationContextType | undefined>(u
 
 export function NotificationProvider({ children }: { children: ReactNode }) {
   const [notification, setNotification] = useState<NotificationType | null>(null);
+  const [isClosing, setIsClosing] = useState(false);
+
+  const closeNotification = () => {
+    setIsClosing(true);
+    // Ждем окончания анимации перед удалением уведомления
+    setTimeout(() => {
+      setNotification(null);
+      setIsClosing(false);
+    }, 300); // 300ms - длительность анимации
+  };
 
   const showNotification = (notification: NotificationType) => {
-    setNotification(notification);
-    setTimeout(() => setNotification(null), 3000);
+    // Если уже есть уведомление, сначала закрываем его
+    if (notification) {
+      setIsClosing(true);
+      setTimeout(() => {
+        setNotification(notification);
+        setIsClosing(false);
+        // Устанавливаем таймер для автоматического закрытия
+        setTimeout(closeNotification, 3000);
+      }, 300);
+    } else {
+      setNotification(notification);
+      // Устанавливаем таймер для автоматического закрытия
+      setTimeout(closeNotification, 3000);
+    }
   };
 
   return (
@@ -28,7 +50,8 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
         <Notification
           message={notification.message}
           type={notification.type}
-          onClose={() => setNotification(null)}
+          onClose={closeNotification}
+          isClosing={isClosing}
         />
       )}
     </NotificationContext.Provider>

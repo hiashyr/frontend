@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react';
 import './Notification.css';
 
 interface NotificationProps {
@@ -5,11 +6,12 @@ interface NotificationProps {
   type: 'success' | 'error' | 'info';
   onClose: () => void;
   icon?: React.ReactNode; // Дополнительная кастомизация
+  isClosing?: boolean;
 }
 
 const DEFAULT_ICONS = {
   success: '✓',
-  error: '✕',
+  error: '!',
   info: 'ℹ'
 };
 
@@ -17,14 +19,15 @@ export default function Notification({
   message, 
   type, 
   onClose,
-  icon
+  icon,
+  isClosing = false
 }: NotificationProps) {
   // Защита от пустого сообщения
   if (!message) return null;
 
   return (
     <div 
-      className={`notification ${type}`}
+      className={`notification ${type} ${isClosing ? 'hiding' : ''}`}
       role="alert"
       aria-live="assertive"
     >

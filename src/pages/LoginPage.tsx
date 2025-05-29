@@ -6,6 +6,7 @@ import { validateEmail, validatePassword, EMAIL_REGEX } from '../utils/validatio
 import { useAuth } from '../contexts/AuthContext';
 import { useNotification } from '../contexts/NotificationContext';
 import pddBackground from '../assets/pdd-background.jpg';
+import CloseButton from '../components/CloseButton/CloseButton';
 import './AuthPage.css';
 
 export default function LoginPage() {
@@ -89,6 +90,7 @@ export default function LoginPage() {
 
   return (
     <div className="auth-page-container">
+      <CloseButton />
       <div 
         className="auth-background" 
         style={{ backgroundImage: `url(${pddBackground})` }}

@@ -4,6 +4,7 @@ import API from '../services/api';
 import { useForm } from '../hooks/useForm';
 import { validateEmail, validatePassword, validatePasswordConfirm, EMAIL_REGEX, PASSWORD_REGEX } from '../utils/validation';
 import pddBackground from '../assets/pdd-background.jpg';
+import CloseButton from '../components/CloseButton/CloseButton';
 import './AuthPage.css';
 
 export default function RegisterPage() {
@@ -140,6 +141,7 @@ export default function RegisterPage() {
   if (registrationSuccess) {
     return (
       <div className="auth-page-container">
+        <CloseButton />
         <div 
           className="auth-background" 
           style={{ backgroundImage: `url(${pddBackground})` }}
@@ -172,6 +174,7 @@ export default function RegisterPage() {
 
   return (
     <div className="auth-page-container">
+      <CloseButton />
       <div 
         className="auth-background" 
         style={{ backgroundImage: `url(${pddBackground})` }}

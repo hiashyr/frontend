@@ -27,6 +27,7 @@
 .notification.error {
   background-color: #F44336;
   border-left: 4px solid #D32F2F;
+  color: white !important;
 }
 
 .notification.info {
@@ -51,6 +52,7 @@
   font-size: 18px;
   min-width: 20px;
   text-align: center;
+  color: white !important;
 }
 
 .notification-message {
@@ -58,6 +60,7 @@
   font-size: 14px;
   line-height: 1.4;
   flex-grow: 1;
+  color: white !important;
 }
 
 .notification-close {
