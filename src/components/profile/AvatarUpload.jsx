@@ -112,7 +112,7 @@ const AvatarUpload = () => {
           />
         ) : (
           <div className="avatar-placeholder">
-            <FiUser className="placeholder-icon" />
+            <img src={defaultAvatar} alt="Стандартный аватар" className="avatar-image" />
           </div>
         )}
         

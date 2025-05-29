@@ -61,26 +61,26 @@ export default function ChoseMode() {
             <div className="mode-content">
               <h3>Экзамен</h3>
               <p>
-                Попробуйте решить экзамен как в ГИБДД! Представлены 20 случайных вопросов из 200 билетов сайта
+                Пройдите тестирование в формате экзамена ГИБДД с ограничением по времени.
               </p>
             </div>
           </Link>
 
           {/* Карточка 3 */}
           <Link 
-            to="/marathon-mode" 
+            to="/tests/hard-mode" 
             className="mode-card"
             onClick={handleModeClick}
           >
             <img 
-              src={hardModeImage}
+              src={hardModeImage} 
               alt="Сложные вопросы" 
               className="mode-image"
             />
             <div className="mode-content">
               <h3>Сложные вопросы</h3>
               <p>
-                Здесь собран билет из 20 самых сложных вопросов, в которых ошибаются больше всего учеников
+                Проверьте свои знания на самых сложных вопросах из правил дорожного движения.
               </p>
             </div>
           </Link>

@@ -20,6 +20,9 @@ import TopicResultsPage from './components/tests/TopicResultsPage';
 import TopicsPage from './pages/tests/TopicsPage';
 import TopicTestPage from './pages/tests/TopicTestPage';
 import ExamResultsPage from './components/tests/ExamResultsPage';
+import HardModePage from './pages/tests/HardModePage';
+import HardModeTestPage from './pages/tests/HardModeTestPage';
+import HardModeResultsPage from './pages/tests/HardModeResultsPage';
 
 export default function App() {
   return (
@@ -47,6 +50,11 @@ export default function App() {
                 <Route path="/tests/exam" element={<ExamPage />} />
                 <Route path="/exam/:attemptId/results" element={<ExamResultsPage />} />
                 <Route path="/tests/topics/:topicId/attempt/:attemptId/results" element={<TopicResultsPage />} />
+
+                {/* Режим сложных вопросов */}
+                <Route path="/tests/hard-mode" element={<HardModePage />} />
+                <Route path="/tests/hard-mode/attempt/:attemptId" element={<HardModeTestPage />} />
+                <Route path="/tests/hard-mode/results/:attemptId" element={<HardModeResultsPage />} />
 
                 {/* Admin routes */}
                 <Route path="/admin" element={<AdminLayout />}>

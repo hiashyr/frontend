@@ -78,7 +78,12 @@ export default function TopicSelection() {
             <div className="stats">
               <span>Вопросов: {topic.questions_count}</span>
               <span>Время: {topic.questions_count} мин</span>
-              <span>Статус: {getStatusText(topic.status)}</span>
+              <span className="topic-status">
+                Статус: 
+                <span className={`status-indicator status-${topic.status}`}>
+                  {getStatusText(topic.status)}
+                </span>
+              </span>
             </div>
             <button 
               className="start-button"

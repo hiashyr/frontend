@@ -1,120 +1,63 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { useNotification } from '../../contexts/NotificationContext';
 import api from '../../services/api';
-import LoadingSpinner from '../LoadingSpinner';
-import Header from '../Header';
-import Footer from '../Footer';
-import './TopicResultsPage.css';
+import LoadingSpinner from '../../components/LoadingSpinner';
+import Header from '../../components/Header';
+import Footer from '../../components/Footer';
+import '../../components/tests/TopicResultsPage.css'; // Используем те же стили, что и для обычных результатов
 
-export default function TopicResultsPage() {
-  const { topicId, attemptId } = useParams();
+export default function HardModeResultsPage() {
+  const { attemptId } = useParams();
   const { user } = useAuth();
   const { showNotification } = useNotification();
   const navigate = useNavigate();
   const [results, setResults] = useState(null);
-  const [topic, setTopic] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  const fetchResults = useCallback(async () => {
-    try {
-      setLoading(true);
-      setError(null);
-      
-      // Получаем результаты попытки
-      const attemptResponse = await api.get(`/topics/${topicId}/attempt/${attemptId}/results`);
-      
-      // Получаем информацию о теме
-      const topicResponse = await api.get(`/topics/${topicId}`);
-      
-      if (!attemptResponse.data || !topicResponse.data) {
-        throw new Error('Некорректный формат ответа сервера');
-      }
-
-      if (!topicResponse.data.data?.name) {
-        throw new Error('Не удалось получить название темы');
-      }
-
-      const requiredFields = [
-        'status', 
-        'correctAnswers', 
-        'incorrectAnswers', 
-        'timeSpent',
-        'results'
-      ];
-      
-      const missingFields = requiredFields.filter(field => !(field in attemptResponse.data.data));
-      if (missingFields.length > 0) {
-        throw new Error(`Отсутствуют обязательные поля: ${missingFields.join(', ')}`);
-      }
-
-      if (!['passed', 'failed', 'in_progress'].includes(attemptResponse.data.data.status)) {
-        throw new Error('Некорректный статус тестирования');
-      }
-
-      if (!Array.isArray(attemptResponse.data.data.results)) {
-        throw new Error('Ответы пользователя должны быть массивом');
-      }
-
-      setResults(attemptResponse.data.data);
-      setTopic(topicResponse.data.data);
-    } catch (err) {
-      console.error('Ошибка загрузки результатов:', err);
-      const errorMessage = err.response?.data?.error || 
-                         err.message || 
-                         'Неизвестная ошибка при загрузке результатов';
-      
-      setError(errorMessage);
-      showNotification({
-        message: errorMessage,
-        type: 'error'
-      });
-
-      navigate(`/tests/topics/${topicId}`);
-    } finally {
-      setLoading(false);
-    }
-  }, [topicId, attemptId, navigate, showNotification]);
-
   useEffect(() => {
-    if (!user) {
-      navigate('/login', { 
-        state: { from: `/tests/topics/${topicId}/attempt/${attemptId}/results` } 
-      });
-      return;
-    }
+    const fetchResults = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+        
+        const response = await api.get(`/tests/hard-mode/attempt/${attemptId}/results`);
+        
+        if (!response.data?.success || !response.data?.data) {
+          throw new Error('Некорректный формат ответа сервера');
+        }
 
-    if (!attemptId || isNaN(Number(attemptId)) || !topicId || isNaN(Number(topicId))) {
-      setError('Некорректный ID попытки или темы');
-      setLoading(false);
-      return;
-    }
+        setResults(response.data.data);
+      } catch (err) {
+        const errorMessage = err.response?.data?.error || err.message || 'Ошибка загрузки результатов';
+        setError(errorMessage);
+        showNotification({
+          message: errorMessage,
+          type: 'error'
+        });
+      } finally {
+        setLoading(false);
+      }
+    };
 
-    fetchResults();
-  }, [attemptId, topicId, user, navigate, fetchResults]);
+    if (user) {
+      fetchResults();
+    }
+  }, [attemptId, user, showNotification]);
 
   const handleRetry = async () => {
     try {
-      // Создаем новую попытку тестирования
-      const startResponse = await api.post(`/topics/${topicId}/start`);
+      const response = await api.post('/tests/hard-mode/start');
       
-      if (!startResponse.data?.success || !startResponse.data?.data?.attemptId) {
-        throw new Error('Не удалось создать новую попытку тестирования');
+      if (!response.data?.success || !response.data?.data?.attemptId) {
+        throw new Error('Не удалось начать новое тестирование');
       }
 
-      const newAttemptId = startResponse.data.data.attemptId;
-      
-      // Переходим к новому тесту
-      navigate(`/tests/topics/${topicId}/attempt/${newAttemptId}`);
+      navigate(`/tests/hard-mode/attempt/${response.data.data.attemptId}`);
     } catch (err) {
-      console.error('Ошибка при создании новой попытки:', err);
-      const errorMessage = err.response?.data?.error || 
-                          err.message || 
-                          'Не удалось начать новое тестирование';
-      
-      setError(errorMessage);
+      const errorMessage = err.response?.data?.error || 'Ошибка начала тестирования';
       showNotification({
         message: errorMessage,
         type: 'error'
@@ -122,8 +65,8 @@ export default function TopicResultsPage() {
     }
   };
 
-  const handleBackToTopics = () => {
-    navigate('/tests/topics');
+  const handleBackToMain = () => {
+    navigate('/tests/hard-mode');
   };
 
   if (loading) {
@@ -152,8 +95,8 @@ export default function TopicResultsPage() {
               <button onClick={handleRetry} className="retry-button">
                 Попробовать снова
               </button>
-              <button onClick={handleBackToTopics} className="topics-button">
-                К списку тем
+              <button onClick={handleBackToMain} className="topics-button">
+                К режиму сложных вопросов
               </button>
             </div>
           </div>
@@ -163,7 +106,7 @@ export default function TopicResultsPage() {
     );
   }
 
-  if (!results || !topic) {
+  if (!results) {
     return (
       <div className="page-container">
         <Header />
@@ -174,8 +117,8 @@ export default function TopicResultsPage() {
               <button onClick={handleRetry} className="retry-button">
                 Попробовать снова
               </button>
-              <button onClick={handleBackToTopics} className="topics-button">
-                К списку тем
+              <button onClick={handleBackToMain} className="topics-button">
+                К режиму сложных вопросов
               </button>
             </div>
           </div>
@@ -202,10 +145,6 @@ export default function TopicResultsPage() {
       <Header />
       <main className="main-content">
         <div className="topic-results-container">
-          <div className="topic-header">
-            <h2>Тема: {topic?.name || 'Загрузка...'}</h2>
-          </div>
-
           <div className={`exam-status ${isPassed ? 'passed' : 'failed'}`}>
             <h2>{isPassed ? 'Тест успешно пройден!' : 'Тест не пройден'}</h2>
             <div className="status-icon" aria-hidden="true">
@@ -269,8 +208,8 @@ export default function TopicResultsPage() {
             <button onClick={handleRetry} className="retry-button">
               Попробовать снова
             </button>
-            <button onClick={handleBackToTopics} className="profile-button">
-              К списку тем
+            <button onClick={handleBackToMain} className="profile-button">
+              К режиму сложных вопросов
             </button>
           </div>
         </div>
@@ -278,4 +217,4 @@ export default function TopicResultsPage() {
       <Footer />
     </div>
   );
-}
+} 
