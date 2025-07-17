@@ -6,6 +6,8 @@ import './AuthPage.css';
 import { useAuth } from '../contexts/AuthContext';
 import { useNotification } from '../contexts/NotificationContext';
 import pddBackground from '.././assets/pdd-background.jpg'
+import FloatingLabelInput from '../components/FloatingLabelInput';
+import CloseButton from '../components/CloseButton/CloseButton';
 
 export default function LoginPage() {
   const { showNotification } = useNotification();
@@ -194,6 +196,7 @@ export default function LoginPage() {
 
   return (
     <div className="auth-page-container">
+      <CloseButton />
       <div 
         className="auth-background" 
         style={{ backgroundImage: `url(${pddBackground})` }}
@@ -206,14 +209,11 @@ export default function LoginPage() {
           <form onSubmit={handleSubmit} aria-label="Форма авторизации">
             {fields.map((field) => (
               <div key={field.name} className="form-group">
-                <label htmlFor={field.name} className="visually-hidden">
-                  {field.label}
-                </label>
-                <input
+                <FloatingLabelInput
                   id={field.name}
                   type={field.type}
                   name={field.name}
-                  placeholder={field.placeholder}
+                  label={field.label}
                   value={field.value}
                   onChange={field.onChange}
                   onBlur={field.onBlur}
@@ -223,6 +223,7 @@ export default function LoginPage() {
                   className={field.error ? 'invalid' : ''}
                   aria-invalid={!!field.error}
                   aria-describedby={field.error ? `${field.name}-error` : undefined}
+                  placeholder=" "
                 />
                 {field.error && (
                   <div id={`${field.name}-error`} className="field-error" role="alert">

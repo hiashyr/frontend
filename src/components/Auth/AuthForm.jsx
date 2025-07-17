@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { FaCheck, FaTimes, FaEye, FaEyeSlash } from 'react-icons/fa';
 import pddBackground from '../../assets/pdd-background.jpg';
 import '../../pages/AuthPage.css';
+import FloatingLabelInput from '../FloatingLabelInput';
 
 export default function AuthForm({
   title,
@@ -30,16 +31,18 @@ export default function AuthForm({
           <form onSubmit={onSubmit}>
             {fields.map((field) => (
               <div key={field.name} className="form-group">
-                <input
+                <FloatingLabelInput
+                  id={field.name}
                   type={field.type}
                   name={field.name}
-                  placeholder={field.placeholder}
+                  label={field.label || field.placeholder}
                   value={field.value}
                   onChange={field.onChange}
                   required={field.required}
                   minLength={field.minLength}
                   disabled={isLoading}
                   className={field.error ? 'invalid' : ''}
+                  placeholder=" "
                 />
                 {field.value && (
                   <span className="validation-icon">

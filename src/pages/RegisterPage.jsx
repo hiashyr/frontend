@@ -4,6 +4,8 @@ import API from '../services/api';
 import AuthForm from '../components/Auth/AuthForm';
 import pddBackground from '../assets/pdd-background.jpg';
 import './AuthPage.css';
+import FloatingLabelInput from '../components/FloatingLabelInput';
+import CloseButton from '../components/CloseButton/CloseButton';
 
 export default function RegisterPage() {
   const navigate = useNavigate();
@@ -190,6 +192,7 @@ export default function RegisterPage() {
   // Основная форма регистрации
   return (
     <div className="auth-page-container">
+      <CloseButton />
       <div 
         className="auth-background" 
         style={{ backgroundImage: `url(${pddBackground})` }}
@@ -202,14 +205,11 @@ export default function RegisterPage() {
           <form onSubmit={handleSubmit} aria-label="Форма регистрации">
             {fields.map((field) => (
               <div key={field.name} className="form-group">
-                <label htmlFor={field.name} className="visually-hidden">
-                  {field.label}
-                </label>
-                <input
+                <FloatingLabelInput
                   id={field.name}
                   type={field.type}
                   name={field.name}
-                  placeholder={field.placeholder}
+                  label={field.label}
                   value={field.value}
                   onChange={field.onChange}
                   required={field.required}
@@ -218,6 +218,7 @@ export default function RegisterPage() {
                   className={field.error ? 'invalid' : ''}
                   aria-invalid={!!field.error}
                   aria-describedby={field.error ? `${field.name}-error` : undefined}
+                  placeholder=" "
                 />
                 {field.error && (
                   <div id={`${field.name}-error`} className="field-error" role="alert">
