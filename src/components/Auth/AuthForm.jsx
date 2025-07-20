@@ -41,7 +41,7 @@ export default function AuthForm({
                   required={field.required}
                   minLength={field.minLength}
                   disabled={isLoading}
-                  className={field.error ? 'invalid' : ''}
+                  className={field.error ? 'invalid' : (field.isValid ? 'valid' : '')}
                   placeholder=" "
                 />
                 {field.value && (

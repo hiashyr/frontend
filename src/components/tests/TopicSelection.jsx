@@ -3,6 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import api from '../../services/api';
 import './TopicSelection.css';
+import ThemesImg from '../../assets/Themes-img.jpg';
+import { FaListUl, FaClock, FaCheckCircle, FaTimesCircle, FaHourglassHalf } from 'react-icons/fa';
 
 export default function TopicSelection() {
   const navigate = useNavigate();
@@ -73,17 +75,32 @@ export default function TopicSelection() {
       <div className="topics-grid">
         {topics.map(topic => (
           <div key={topic.id} className="topic-card">
+            <div className="topic-image-container">
+              <img
+                src={getTopicImageUrl(topic.imageUrl)}
+                alt={topic.name}
+                className="topic-image"
+                onError={e => { e.target.src = ThemesImg; }}
+              />
+            </div>
             <h3>{topic.name}</h3>
             <p className="description">{topic.description}</p>
-            <div className="stats">
-              <span>Вопросов: {topic.questions_count}</span>
-              <span>Время: {topic.questions_count} мин</span>
-              <span className="topic-status">
-                Статус: 
-                <span className={`status-indicator status-${topic.status}`}>
-                  {getStatusText(topic.status)}
-                </span>
-              </span>
+            <div className="topic-info-block">
+              <div className="info-item">
+                <FaListUl className="info-icon" />
+                <span>{topic.questions_count} вопросов</span>
+              </div>
+              <div className="info-item">
+                <FaClock className="info-icon" />
+                <span>{topic.questions_count} мин</span>
+              </div>
+              <div className={`info-item status status-${topic.status}`}>
+                {topic.status === 'passed' && <FaCheckCircle className="info-icon status-passed" />}
+                {topic.status === 'failed' && <FaTimesCircle className="info-icon status-failed" />}
+                {topic.status === 'in_progress' && <FaHourglassHalf className="info-icon status-in-progress" />}
+                {topic.status === 'not_started' && <FaHourglassHalf className="info-icon status-not-started" />}
+                <span>{getStatusText(topic.status)}</span>
+              </div>
             </div>
             <button 
               className="start-button"
@@ -107,3 +124,9 @@ export default function TopicSelection() {
     return statusMap[status] || status;
   }
 }
+
+const getTopicImageUrl = (imageUrl) => {
+  if (!imageUrl) return ThemesImg;
+  if (imageUrl.startsWith('http')) return imageUrl;
+  return `${process.env.REACT_APP_API_URL || 'http://localhost:5000'}${imageUrl}`;
+};

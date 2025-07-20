@@ -41,14 +41,16 @@
   
   /* Блок информации */
   .info-grid {
-    display: grid;
-    grid-template-columns: 1fr;
+    display: flex;
+    flex-direction: row;
     gap: 25px;
   }
   
   .info-item {
     display: flex;
     flex-direction: column;
+    flex: 1 1 0;
+    min-width: 0;
   }
   
   .info-label {

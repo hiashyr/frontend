@@ -233,8 +233,20 @@ export default function RegisterPage() {
             <button 
               type="submit" 
               className="submit-button"
-              disabled={isLoading}
-              aria-disabled={isLoading}
+              disabled={
+                isLoading ||
+                !formData.email ||
+                !formData.password ||
+                !formData.confirmPassword ||
+                fields.some(f => f.required && (!f.value || (f.isValid !== undefined && !f.isValid)))
+              }
+              aria-disabled={
+                isLoading ||
+                !formData.email ||
+                !formData.password ||
+                !formData.confirmPassword ||
+                fields.some(f => f.required && (!f.value || (f.isValid !== undefined && !f.isValid)))
+              }
             >
               {isLoading ? 'Регистрация...' : 'Зарегистрироваться'}
             </button>

@@ -3,6 +3,8 @@ import { Link } from 'react-router-dom';
 import API from '../services/api';
 import pddBackground from '../assets/pdd-background.jpg';
 import './AuthPage.css';
+import FloatingLabelInput from '../components/FloatingLabelInput';
+import CloseButton from '../components/CloseButton/CloseButton';
 
 export default function ForgotPasswordPage() {
   const [email, setEmail] = useState('');
@@ -112,6 +114,7 @@ export default function ForgotPasswordPage() {
 
   return (
     <div className="auth-page-container">
+      <CloseButton />
       <div 
         className="auth-background" 
         style={{ backgroundImage: `url(${pddBackground})` }}
@@ -123,21 +126,19 @@ export default function ForgotPasswordPage() {
           <h1>Восстановление пароля</h1>
           <form onSubmit={handleSubmit} aria-label="Форма восстановления пароля">
             <div className="form-group">
-              <label htmlFor="forgot-email" className="visually-hidden">
-                Email для восстановления пароля
-              </label>
-              <input
+              <FloatingLabelInput
                 id="forgot-email"
                 type="email"
                 name="email"
-                placeholder="Введите ваш email"
+                label="Email"
                 value={email}
                 onChange={handleChange}
                 required
                 disabled={isLoading}
-                className={error ? 'invalid' : ''}
+                className={error ? 'invalid' : (email && validateEmail(email) ? 'valid' : '')}
                 aria-invalid={!!error}
                 aria-describedby={error ? "email-error" : undefined}
+                placeholder=" "
               />
               {error && (
                 <div id="email-error" className="field-error" role="alert">

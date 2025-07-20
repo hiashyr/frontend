@@ -35,6 +35,7 @@ export default function LoginPage() {
     email: false,
     password: false
   });
+  const [wasSubmitted, setWasSubmitted] = useState(false);
 
   const validateEmail = (email) => {
     return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
@@ -68,7 +69,7 @@ export default function LoginPage() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+    setWasSubmitted(true);
     setTouched({ email: true, password: true });
     
     const emailError = !formData.email 
@@ -171,8 +172,8 @@ export default function LoginPage() {
       },
       onBlur: () => handleBlur('email'),
       required: true,
-      error: errors.email,
-      isValid: !errors.email && touched.email,
+      error: (formData.email.length > 0 && (wasSubmitted || touched.email)) ? errors.email : '',
+      isValid: !errors.email && formData.email,
       'aria-describedby': 'email-error'
     },
     {
@@ -188,8 +189,8 @@ export default function LoginPage() {
       onBlur: () => handleBlur('password'),
       required: true,
       minLength: 6,
-      error: errors.password,
-      isValid: !errors.password && touched.password,
+      error: (wasSubmitted || (touched.password && formData.password)) ? errors.password : '',
+      isValid: !errors.password && formData.password,
       'aria-describedby': 'password-error'
     }
   ];
