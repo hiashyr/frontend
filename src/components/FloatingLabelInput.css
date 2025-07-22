@@ -1,0 +1,72 @@
+.floating-label-input-container {
+  position: relative;
+  margin: 32px 0 24px 0;
+  width: 100%;
+  max-width: 350px;
+}
+
+.floating-label {
+  position: absolute;
+  top: -14px;
+  left: 16px;
+  background: #fff;
+  padding: 0 8px;
+  font-size: 15px;
+  color: #1B1BB3;
+  pointer-events: none;
+  z-index: 2;
+  transition: color 0.2s;
+  border-radius: 8px;
+  border: 1px solid #e0e0e0;
+}
+
+.floating-input {
+  width: 100%;
+  padding: 16px 12px 12px 12px;
+  font-size: 16px;
+  border: 1.5px solid #bdbdbd;
+  border-radius: 8px;
+  outline: none;
+  background: #fff;
+  transition: border-color 0.2s;
+}
+
+.floating-input:focus {
+  border-color: #1976d2;
+}
+
+.floating-input:focus + .floating-label,
+.floating-input:not(:placeholder-shown) + .floating-label {
+  color: #1976d2;
+  border-color: #1976d2;
+}
+
+.floating-input.valid {
+  border-color: #43a047;
+}
+
+.floating-input.invalid {
+  border-color: #e53935;
+}
+
+.floating-input-wrapper {
+  position: relative;
+  width: 100%;
+}
+
+.input-valid-icon,
+.input-invalid-icon {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 18px;
+  pointer-events: none;
+  z-index: 3;
+}
+.input-valid-icon {
+  color: #43a047;
+}
+.input-invalid-icon {
+  color: #e53935;
+} 
