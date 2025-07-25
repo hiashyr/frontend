@@ -174,6 +174,8 @@ export default function HardModeTestPage() {
   }
 
   const currentQuestion = testData.questions[currentQuestionIndex];
+  // Для отладки: смотрим, что приходит в imageUrl
+  console.log('imageUrl:', currentQuestion.imageUrl);
   const minutes = Math.floor(timeLeft / 60);
   const seconds = timeLeft % 60;
 
@@ -204,7 +206,7 @@ export default function HardModeTestPage() {
             <p className="question-text">{currentQuestion.text}</p>
             {currentQuestion.imageUrl && (
               <img 
-                src={`${process.env.REACT_APP_API_URL || 'http://localhost:5000'}${currentQuestion.imageUrl}`}
+                src={`${process.env.REACT_APP_API_URL}${currentQuestion.imageUrl.replace(/^\/api/, '')}`}
                 alt="Иллюстрация к вопросу" 
                 className="question-image"
                 onError={(e) => {
@@ -240,4 +242,4 @@ export default function HardModeTestPage() {
       <Footer />
     </div>
   );
-} 
+}

@@ -181,7 +181,11 @@ export default function ExamPage() {
               <p>{currentQuestion.text}</p>
               {currentQuestion.imageUrl && (
                 <img 
-                  src={`${process.env.REACT_APP_API_URL || 'http://localhost:5000'}${currentQuestion.imageUrl}`}
+                  src={
+                    currentQuestion.imageUrl.startsWith('http')
+                      ? currentQuestion.imageUrl
+                      : `${process.env.REACT_APP_API_URL}${currentQuestion.imageUrl.replace(/^\/api/, '')}`
+                  }
                   alt="Иллюстрация к вопросу" 
                   className="question-image"
                   onError={(e) => {

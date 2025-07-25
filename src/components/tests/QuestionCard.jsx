@@ -5,7 +5,7 @@ const DEFAULT_IMAGE = '/images/default-question-image.jpg';
 
 const QuestionCard = ({ question, answers, onAnswerSelect, selectedAnswer }) => {
   const [imageError, setImageError] = useState(false);
-  const baseUrl = process.env.REACT_APP_API_URL || 'http://localhost:5000';
+  const baseUrl = process.env.REACT_APP_API_URL;
 
   const getImageUrl = (imageUrl) => {
     if (!imageUrl) return null;

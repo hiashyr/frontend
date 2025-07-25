@@ -53,7 +53,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     // Добавляем базовый URL
     return {
       ...userData,
-      avatarUrl: `${process.env.REACT_APP_API_URL || 'http://localhost:5000'}${userData.avatarUrl}`
+      avatarUrl: `${process.env.REACT_APP_API_URL}${userData.avatarUrl}`
     };
   };
 

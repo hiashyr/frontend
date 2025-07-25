@@ -226,7 +226,7 @@ export default function TopicTestPage() {
               <p>{currentQuestion.text}</p>
               {currentQuestion.imageUrl && (
                 <img 
-                  src={`${process.env.REACT_APP_API_URL || 'http://localhost:5000'}${currentQuestion.imageUrl}`}
+                  src={`${process.env.REACT_APP_API_URL}${currentQuestion.imageUrl}`}
                   alt="Иллюстрация к вопросу" 
                   className="question-image"
                   onError={(e) => {

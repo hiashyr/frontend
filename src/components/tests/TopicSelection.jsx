@@ -128,5 +128,5 @@ export default function TopicSelection() {
 const getTopicImageUrl = (imageUrl) => {
   if (!imageUrl) return ThemesImg;
   if (imageUrl.startsWith('http')) return imageUrl;
-  return `${process.env.REACT_APP_API_URL || 'http://localhost:5000'}${imageUrl}`;
+  return `${process.env.REACT_APP_API_URL}${imageUrl}`;
 };
