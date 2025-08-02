@@ -52,49 +52,50 @@ export default function Header() {
   return (
     <header className="header">
       <div className="container">
-        <Link to="/" className="logo" aria-label="На главную">
-          <span className="logo-text">ПДД Тренер</span>
-        </Link>
-        
-        <nav className="nav" aria-label="Основная навигация">
+        <div className="header-main-row" style={{ display: 'flex', alignItems: 'center', width: '100%' }}>
+          <Link to="/" className="logo" aria-label="На главную">
+            <span className="logo-text">ПДД Тренер</span>
+          </Link>
+        <nav className="nav" aria-label="Основная навигация" style={{ flex: 1 }}>
           <Link to="/rules" className="nav-link" aria-label="Правила ПДД">
             <FaBook className="nav-icon" aria-hidden="true" />
             <span className="nav-text">Правила ПДД</span>
           </Link>
-          
-          <Link to="/exam-info" className="nav-link" aria-label="Об экзамене">
+          <Link to="/about-exam" className="nav-link" aria-label="Об экзамене">
             <FaClipboardList className="nav-icon" aria-hidden="true" />
             <span className="nav-text">О экзамене</span>
           </Link>
-          
-          {user ? (
-            <Link 
-              to="/profile" 
-              className="nav-link user-profile-link"
-              aria-label="Личный кабинет"
-            >
-              <img 
-                src={avatarSrc}
-                alt={`Аватар ${user.email}`}
-                className="user-avatar"
-                onError={handleAvatarError}
-                loading="lazy"
-                width="40"
-                height="40"
-              />
-              <span className="nav-text">Личный кабинет</span>
-            </Link>
-          ) : (
-            <Link 
-              to="/register" 
-              className="nav-link register-btn"
-              aria-label="Зарегистрироваться"
-            >
-              <FaUserPlus className="nav-icon" aria-hidden="true" />
-              <span className="nav-text">Зарегистрироваться</span>
-            </Link>
-          )}
         </nav>
+        {user ? (
+          <Link 
+            to="/profile" 
+            className="nav-link user-profile-link header-right"
+            aria-label="Личный кабинет"
+            style={{ marginLeft: '24px' }}
+          >
+            <img 
+              src={avatarSrc}
+              alt={`Аватар ${user.email}`}
+              className="user-avatar"
+              onError={handleAvatarError}
+              loading="lazy"
+              width="40"
+              height="40"
+            />
+            <span className="nav-text">Личный кабинет</span>
+          </Link>
+        ) : (
+          <Link 
+            to="/register" 
+            className="nav-link register-btn header-right"
+            aria-label="Зарегистрироваться"
+            style={{ marginLeft: '24px' }}
+          >
+            <FaUserPlus className="nav-icon" aria-hidden="true" />
+            <span className="nav-text">Зарегистрироваться</span>
+          </Link>
+        )}
+        </div>
       </div>
     </header>
   );

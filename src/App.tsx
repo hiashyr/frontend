@@ -23,6 +23,7 @@ import ExamResultsPage from './components/tests/ExamResultsPage';
 import HardModePage from './pages/tests/HardModePage';
 import HardModeTestPage from './pages/tests/HardModeTestPage';
 import HardModeResultsPage from './pages/tests/HardModeResultsPage';
+import AboutExamPage from './pages/AboutExamPage';
 
 export default function App() {
   return (
@@ -38,6 +39,7 @@ export default function App() {
               <Route path="/reset-password" element={<ResetPasswordPage />} />
               <Route path="/verify-email" element={<VerifyEmailPage />} />
               <Route path="/resend-verification" element={<ResendVerificationPage />} />
+              <Route path="/about-exam" element={<AboutExamPage />} />
 
               {/* Protected routes */}
               <Route element={<PrivateRoute />}>

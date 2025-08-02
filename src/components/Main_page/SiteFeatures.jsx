@@ -29,7 +29,7 @@ export default function SiteFeatures() {
             <p>
               Всё о теоретическом экзамене в ГИБДД: как проходит, какие билеты, как оценивается
             </p>
-            <Link to="/exam-info" className="feature-link">
+            <Link to="/about-exam" className="feature-link">
               Узнать подробности →
             </Link>
           </div>
