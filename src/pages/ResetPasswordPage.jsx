@@ -4,6 +4,7 @@ import API from '../services/api';
 import { useNotification } from '../contexts/NotificationContext';
 import pddBackground from '../assets/pdd-background.jpg';
 import './AuthPage.css';
+import { validatePassword, validatePasswordConfirm } from '../utils/validation';
 
 const ResetPasswordPage = () => {
   const [searchParams] = useSearchParams();
@@ -15,6 +16,10 @@ const ResetPasswordPage = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [tokenStatus, setTokenStatus] = useState('checking'); // 'checking', 'valid', 'used', 'expired', 'invalid'
   const [isPageLoading, setIsPageLoading] = useState(true);
+  const [touched, setTouched] = useState({
+    newPassword: false,
+    confirmPassword: false
+  });
 
   // Проверка токена при загрузке страницы
   useEffect(() => {
@@ -26,8 +31,8 @@ const ResetPasswordPage = () => {
       }
 
       try {
-        const response = await API.post('/auth/check-token', { 
-          token: searchParams.get('token') 
+        const response = await API.post('/auth/check-token', {
+          token: searchParams.get('token')
         });
 
         if (response.status === 'used') {
@@ -50,26 +55,33 @@ const ResetPasswordPage = () => {
     checkToken();
   }, [searchParams]);
 
+  const handleBlur = (field) => {
+    setTouched(prev => ({ ...prev, [field]: true }));
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
-    if (newPassword !== confirmPassword) {
-      setError('Пароли не совпадают');
+
+    const { isValid: isPasswordValid, error: passwordError } = validatePassword(newPassword);
+    const { isValid: isConfirmPasswordValid, error: confirmPasswordError } = validatePasswordConfirm(newPassword, confirmPassword);
+
+    if (!isPasswordValid) {
+      setError(passwordError);
       return;
     }
 
-    if (newPassword.length < 6) {
-      setError('Пароль должен содержать минимум 6 символов');
+    if (!isConfirmPasswordValid) {
+      setError(confirmPasswordError);
       return;
     }
 
     setIsLoading(true);
     try {
-      await API.post('/auth/reset-password', { 
-        token: searchParams.get('token'), 
-        newPassword 
+      await API.post('/auth/reset-password', {
+        token: searchParams.get('token'),
+        newPassword
       });
-      
+
       showNotification({
         message: 'Пароль успешно изменён!',
         type: 'success'
@@ -101,11 +113,11 @@ const ResetPasswordPage = () => {
   if (tokenStatus === 'used') {
     return (
       <div className="auth-page-container">
-        <div 
-          className="auth-background" 
+        <div
+          className="auth-background"
           style={{ backgroundImage: `url(${pddBackground})` }}
         ></div>
-        
+
         <div className="auth-form-container">
           <div className="token-status-card">
             <h2>Ссылка уже использована</h2>
@@ -130,11 +142,11 @@ const ResetPasswordPage = () => {
   if (tokenStatus === 'expired') {
     return (
       <div className="auth-page-container">
-        <div 
-          className="auth-background" 
+        <div
+          className="auth-background"
           style={{ backgroundImage: `url(${pddBackground})` }}
         ></div>
-        
+
         <div className="auth-form-container">
           <div className="token-status-card">
             <h2>Срок действия ссылки истёк</h2>
@@ -159,11 +171,11 @@ const ResetPasswordPage = () => {
   if (tokenStatus === 'invalid') {
     return (
       <div className="auth-page-container">
-        <div 
-          className="auth-background" 
+        <div
+          className="auth-background"
           style={{ backgroundImage: `url(${pddBackground})` }}
         ></div>
-        
+
         <div className="auth-form-container">
           <div className="token-status-card">
             <h2>Недействительная ссылка</h2>
@@ -187,11 +199,11 @@ const ResetPasswordPage = () => {
 
   return (
     <div className="auth-page-container">
-      <div 
-        className="auth-background" 
+      <div
+        className="auth-background"
         style={{ backgroundImage: `url(${pddBackground})` }}
       ></div>
-      
+
       <div className="auth-form-container">
         <div className="auth-form">
           <h2>Смена пароля</h2>
@@ -203,12 +215,13 @@ const ResetPasswordPage = () => {
                 placeholder="Новый пароль (минимум 6 символов)"
                 value={newPassword}
                 onChange={(e) => setNewPassword(e.target.value)}
+                onBlur={() => handleBlur('newPassword')}
                 required
                 minLength={6}
                 disabled={isLoading}
-                className={newPassword && newPassword.length < 6 ? 'invalid' : ''}
+                className={touched.newPassword && newPassword.length < 6 ? 'invalid' : (touched.newPassword && newPassword.length >= 6 ? 'valid' : '')}
               />
-              {newPassword && newPassword.length < 6 && (
+              {touched.newPassword && newPassword.length < 6 && (
                 <div className="field-error">Слишком короткий пароль</div>
               )}
             </div>
@@ -220,30 +233,31 @@ const ResetPasswordPage = () => {
                 placeholder="Подтвердите пароль"
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
+                onBlur={() => handleBlur('confirmPassword')}
                 required
                 disabled={isLoading}
-                className={confirmPassword && newPassword !== confirmPassword ? 'invalid' : ''}
+                className={touched.confirmPassword && newPassword !== confirmPassword ? 'invalid' : (touched.confirmPassword && newPassword === confirmPassword ? 'valid' : '')}
               />
-              {confirmPassword && newPassword !== confirmPassword && (
+              {touched.confirmPassword && newPassword !== confirmPassword && (
                 <div className="field-error">Пароли не совпадают</div>
               )}
             </div>
 
             {error && <div className="form-error">{error}</div>}
-            
-            <button 
-              type="submit" 
+
+            <button
+              type="submit"
               className="submit-button"
-              disabled={isLoading || 
-                !newPassword || 
-                !confirmPassword || 
-                newPassword.length < 6 || 
-                newPassword !== confirmPassword}
+              disabled={isLoading ||
+                !newPassword ||
+                !confirmPassword ||
+                (touched.newPassword && newPassword.length < 6) ||
+                (touched.confirmPassword && newPassword !== confirmPassword)}
             >
               {isLoading ? 'Сохранение...' : 'Сохранить пароль'}
             </button>
           </form>
-          
+
           <p className="auth-link">
             Вспомнили пароль? <Link to="/login">Войти</Link>
           </p>

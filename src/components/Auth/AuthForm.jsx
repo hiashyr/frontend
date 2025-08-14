@@ -15,13 +15,12 @@ export default function AuthForm({
   linkPath,
   linkDescription,
   isLoading = false,
-  showForgotPassword = false,
-  emailError = null // Добавляем новый пропс для ошибки email
+  showForgotPassword = false
 }) {
   return (
     <div className="auth-page-container">
-      <div 
-        className="auth-background" 
+      <div
+        className="auth-background"
         style={{ backgroundImage: `url(${pddBackground})` }}
       ></div>
       
@@ -55,9 +54,7 @@ export default function AuthForm({
                 )}
                 {field.error && (
                   <div className="field-error">
-                    {field.name === 'email' && emailError
-                      ? emailError
-                      : field.error}
+                    {field.error}
                   </div>
                 )}
               </div>
@@ -68,18 +65,18 @@ export default function AuthForm({
                 <Link to="/forgot-password">Забыли пароль?</Link>
               </div>
             )}
-            
+
             {error && <div className="form-error">{error}</div>}
-            
-            <button 
-              type="submit" 
+
+            <button
+              type="submit"
               className="submit-button"
               disabled={isLoading || fields.some(f => f.required && (!f.value || (f.isValid !== undefined && !f.isValid)))}
             >
               {isLoading ? 'Загрузка...' : submitText}
             </button>
           </form>
-          
+
           <p className="auth-link">
             {linkDescription} <Link to={linkPath}>{linkText}</Link>
           </p>

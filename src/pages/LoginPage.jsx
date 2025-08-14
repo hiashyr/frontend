@@ -8,28 +8,29 @@ import { useNotification } from '../contexts/NotificationContext';
 import pddBackground from '.././assets/pdd-background.jpg'
 import FloatingLabelInput from '../components/FloatingLabelInput';
 import CloseButton from '../components/CloseButton/CloseButton';
+import { validateEmail, validatePassword } from '../utils/validation';
 
 export default function LoginPage() {
   const { showNotification } = useNotification();
   const { login } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
-  
+
   const [formData, setFormData] = useState({
     email: '',
     password: ''
   });
-  
+
   const [errors, setErrors] = useState({
     email: '',
     password: ''
   });
-  
+
   const [formError, setFormError] = useState({
     message: '',
     canResend: false
   });
-  
+
   const [isLoading, setIsLoading] = useState(false);
   const [touched, setTouched] = useState({
     email: false,
@@ -37,29 +38,22 @@ export default function LoginPage() {
   });
   const [wasSubmitted, setWasSubmitted] = useState(false);
 
-  const validateEmail = (email) => {
-    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-  };
-
   useEffect(() => {
     const newErrors = { ...errors };
-    
+
     if (touched.email) {
-      newErrors.email = !formData.email 
-        ? 'Email обязателен' 
-        : !validateEmail(formData.email) 
-          ? 'Введите корректный email' 
-          : '';
+      const { isValid, error } = validateEmail(formData.email);
+      newErrors.email = error;
     }
-    
+
     if (touched.password) {
-      newErrors.password = !formData.password 
-        ? 'Пароль обязателен' 
-        : formData.password.length < 6 
-          ? 'Пароль должен содержать минимум 6 символов' 
+      newErrors.password = !formData.password
+        ? 'Пароль обязателен'
+        : formData.password.length < 6
+          ? 'Пароль должен содержать минимум 6 символов'
           : '';
     }
-    
+
     setErrors(newErrors);
   }, [formData, touched]);
 
@@ -71,27 +65,22 @@ export default function LoginPage() {
     e.preventDefault();
     setWasSubmitted(true);
     setTouched({ email: true, password: true });
-    
-    const emailError = !formData.email 
-      ? 'Email обязателен' 
-      : !validateEmail(formData.email) 
-        ? 'Введите корректный email' 
+
+    const { isValid: isEmailValid, error: emailError } = validateEmail(formData.email);
+    const passwordError = !formData.password
+      ? 'Пароль обязателен'
+      : formData.password.length < 6
+        ? 'Пароль должен содержать минимум 6 символов'
         : '';
-    
-    const passwordError = !formData.password 
-      ? 'Пароль обязателен' 
-      : formData.password.length < 6 
-        ? 'Пароль должен содержать минимум 6 символов' 
-        : '';
-    
-    if (emailError || passwordError) {
+
+    if (!isEmailValid || passwordError) {
       setErrors({ email: emailError, password: passwordError });
       return;
     }
-    
+
     setIsLoading(true);
     setFormError({ message: '', canResend: false });
-    
+
     try {
       const { data } = await API.post('/users/login', {
         email: formData.email.trim(),
@@ -103,28 +92,28 @@ export default function LoginPage() {
       }
 
       login(data.token, data.user);
-      
+
       showNotification({
         message: 'Авторизация прошла успешно!',
         type: 'success'
       });
 
-      const redirectPath = location.state?.from?.pathname || 
+      const redirectPath = location.state?.from?.pathname ||
                          (data.user.role === 'admin' ? '/admin/dashboard' : '/');
-      
+
       navigate(redirectPath, {
         replace: true,
-        state: { 
+        state: {
           fromLogin: true,
-          userData: data.user 
+          userData: data.user
         }
       });
 
     } catch (err) {
       console.error('Ошибка авторизации:', err);
-      
+
       const serverError = err.response?.data;
-      
+
       if (serverError?.error === 'EMAIL_NOT_VERIFIED') {
         setFormError({
           message: serverError.message || 'Подтвердите email, письмо отправлено',
@@ -132,12 +121,12 @@ export default function LoginPage() {
         });
       } else {
         setFormError({
-          message: serverError?.message || 
+          message: serverError?.message ||
                   'Неверные учетные данные или ошибка сервера',
           canResend: false
         });
       }
-      
+
       setFormData(prev => ({ ...prev, password: '' }));
     } finally {
       setIsLoading(false);
@@ -167,13 +156,16 @@ export default function LoginPage() {
       placeholder: 'Введите ваш email',
       value: formData.email,
       onChange: (e) => {
-        setFormData({...formData, email: e.target.value});
-        setTouched(prev => ({ ...prev, email: true }));
+        const newEmail = e.target.value;
+        setFormData({...formData, email: newEmail});
       },
-      onBlur: () => handleBlur('email'),
+      onBlur: () => {
+        handleBlur('email');
+        const { isValid } = validateEmail(formData.email);
+      },
       required: true,
-      error: (formData.email.length > 0 && (wasSubmitted || touched.email)) ? errors.email : '',
-      isValid: !errors.email && formData.email,
+      error: (wasSubmitted || touched.email) ? errors.email : '',
+      isValid: touched.email ? validateEmail(formData.email).isValid : formData.email ? validateEmail(formData.email).isValid : false,
       'aria-describedby': 'email-error'
     },
     {
@@ -183,14 +175,17 @@ export default function LoginPage() {
       placeholder: 'Введите ваш пароль',
       value: formData.password,
       onChange: (e) => {
-        setFormData({...formData, password: e.target.value});
-        setTouched(prev => ({ ...prev, password: true }));
+        const newPassword = e.target.value;
+        setFormData({...formData, password: newPassword});
       },
-      onBlur: () => handleBlur('password'),
+      onBlur: () => {
+        handleBlur('password');
+        const { isValid } = validatePassword(formData.password);
+      },
       required: true,
       minLength: 6,
       error: (wasSubmitted || (touched.password && formData.password)) ? errors.password : '',
-      isValid: !errors.password && formData.password,
+      isValid: touched.password ? validatePassword(formData.password).isValid : formData.password ? validatePassword(formData.password).isValid : false,
       'aria-describedby': 'password-error'
     }
   ];
@@ -198,12 +193,12 @@ export default function LoginPage() {
   return (
     <div className="auth-page-container">
       <CloseButton />
-      <div 
-        className="auth-background" 
+      <div
+        className="auth-background"
         style={{ backgroundImage: `url(${pddBackground})` }}
         aria-hidden="true"
       ></div>
-      
+
       <div className="auth-form-container">
         <div className="auth-form">
           <h1>Вход в аккаунт</h1>
@@ -238,7 +233,7 @@ export default function LoginPage() {
               <div className="form-error" role="alert">
                 {formError.message}
                 {formError.canResend && (
-                  <button 
+                  <button
                     type="button"
                     onClick={handleResendEmail}
                     className="resend-button"
@@ -249,13 +244,13 @@ export default function LoginPage() {
                 )}
               </div>
             )}
-            
+
             <div className="forgot-password-link">
               <Link to="/forgot-password">Забыли пароль?</Link>
             </div>
-            
-            <button 
-              type="submit" 
+
+            <button
+              type="submit"
               className="submit-button"
               disabled={isLoading || !formData.email || !formData.password || !!errors.email || !!errors.password}
               aria-disabled={isLoading || !formData.email || !formData.password || !!errors.email || !!errors.password}
@@ -263,7 +258,7 @@ export default function LoginPage() {
               {isLoading ? 'Вход...' : 'Войти'}
             </button>
           </form>
-          
+
           <p className="auth-link">
             Нет аккаунта? <Link to="/register">Зарегистрируйтесь</Link>
           </p>

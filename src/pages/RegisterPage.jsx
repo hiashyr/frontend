@@ -6,6 +6,7 @@ import pddBackground from '../assets/pdd-background.jpg';
 import './AuthPage.css';
 import FloatingLabelInput from '../components/FloatingLabelInput';
 import CloseButton from '../components/CloseButton/CloseButton';
+import { validateEmail, validatePassword, validatePasswordConfirm } from '../utils/validation';
 
 export default function RegisterPage() {
   const navigate = useNavigate();
@@ -20,20 +21,11 @@ export default function RegisterPage() {
   const [registrationSuccess, setRegistrationSuccess] = useState(false);
   const [registeredEmail, setRegisteredEmail] = useState('');
   const [countdown, setCountdown] = useState(5);
-
-  // Валидация полей
-  const validateField = (name, value) => {
-    switch (name) {
-      case 'email':
-        return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
-      case 'password':
-        return value.length >= 6;
-      case 'confirmPassword':
-        return value === formData.password;
-      default:
-        return false;
-    }
-  };
+  const [touched, setTouched] = useState({
+    email: false,
+    password: false,
+    confirmPassword: false
+  });
 
   // Обработчик изменения полей
   const handleChange = (e) => {
@@ -42,18 +34,27 @@ export default function RegisterPage() {
     setError('');
   };
 
+  // Обработчик потери фокуса
+  const handleBlur = (field) => {
+    setTouched(prev => ({ ...prev, [field]: true }));
+  };
+
   // Валидация всей формы
   const validateForm = () => {
-    if (!validateField('email', formData.email)) {
-      setError('Введите корректный email');
+    const { isValid: isEmailValid, error: emailError } = validateEmail(formData.email);
+    const { isValid: isPasswordValid, error: passwordError } = validatePassword(formData.password);
+    const { isValid: isConfirmPasswordValid, error: confirmPasswordError } = validatePasswordConfirm(formData.password, formData.confirmPassword);
+
+    if (!isEmailValid) {
+      setError(emailError);
       return false;
     }
-    if (!validateField('password', formData.password)) {
-      setError('Пароль должен содержать минимум 6 символов');
+    if (!isPasswordValid) {
+      setError(passwordError);
       return false;
     }
-    if (!validateField('confirmPassword', formData.confirmPassword)) {
-      setError('Пароли не совпадают');
+    if (!isConfirmPasswordValid) {
+      setError(confirmPasswordError);
       return false;
     }
     return true;
@@ -67,11 +68,18 @@ export default function RegisterPage() {
       label: 'Email',
       placeholder: 'Введите ваш email',
       value: formData.email,
-      onChange: handleChange,
+      onChange: (e) => {
+        const newEmail = e.target.value;
+        setFormData(prev => ({ ...prev, email: newEmail }));
+      },
+      onBlur: () => {
+        handleBlur('email');
+        const { isValid } = validateEmail(formData.email);
+      },
       required: true,
-      isValid: validateField('email', formData.email),
-      error: formData.email && !validateField('email', formData.email) 
-        ? 'Некорректный email' 
+      isValid: touched.email ? validateEmail(formData.email).isValid : formData.email ? validateEmail(formData.email).isValid : false,
+      error: touched.email && !validateEmail(formData.email).isValid
+        ? 'Некорректный email'
         : null,
       'aria-describedby': 'email-error'
     },
@@ -81,11 +89,18 @@ export default function RegisterPage() {
       label: 'Пароль',
       placeholder: 'Придумайте пароль (минимум 6 символов)',
       value: formData.password,
-      onChange: handleChange,
+      onChange: (e) => {
+        const newPassword = e.target.value;
+        setFormData(prev => ({ ...prev, password: newPassword }));
+      },
+      onBlur: () => {
+        handleBlur('password');
+        const { isValid } = validatePassword(formData.password);
+      },
       required: true,
       minLength: 6,
-      isValid: validateField('password', formData.password),
-      error: formData.password && !validateField('password', formData.password)
+      isValid: touched.password ? validatePassword(formData.password).isValid : formData.password ? validatePassword(formData.password).isValid : false,
+      error: touched.password && !validatePassword(formData.password).isValid
         ? 'Слишком короткий пароль'
         : null,
       'aria-describedby': 'password-error'
@@ -96,12 +111,17 @@ export default function RegisterPage() {
       label: 'Подтверждение пароля',
       placeholder: 'Повторите пароль',
       value: formData.confirmPassword,
-      onChange: handleChange,
+      onChange: (e) => {
+        const newConfirmPassword = e.target.value;
+        setFormData(prev => ({ ...prev, confirmPassword: newConfirmPassword }));
+      },
+      onBlur: () => {
+        handleBlur('confirmPassword');
+        const { isValid } = validatePasswordConfirm(formData.password, formData.confirmPassword);
+      },
       required: true,
-      isValid: formData.confirmPassword && 
-               validateField('confirmPassword', formData.confirmPassword),
-      error: formData.confirmPassword && 
-             !validateField('confirmPassword', formData.confirmPassword)
+      isValid: touched.confirmPassword ? validatePasswordConfirm(formData.password, formData.confirmPassword).isValid : formData.confirmPassword ? validatePasswordConfirm(formData.password, formData.confirmPassword).isValid : false,
+      error: touched.confirmPassword && !validatePasswordConfirm(formData.password, formData.confirmPassword).isValid
         ? 'Пароли не совпадают'
         : null,
       'aria-describedby': 'confirmPassword-error'
@@ -112,14 +132,14 @@ export default function RegisterPage() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!validateForm()) return;
-  
+
     setIsLoading(true);
     try {
       const response = await API.post('/users/register', {
         email: formData.email,
         password: formData.password
       });
-      
+
       if (response.status === 201) {
         setRegistrationSuccess(true);
         setRegisteredEmail(formData.email);
@@ -127,9 +147,9 @@ export default function RegisterPage() {
       }
     } catch (err) {
       console.error('Registration error:', err);
-      setError(err?.message || 
-               err?.error === 'EMAIL_EXISTS' 
-                 ? 'Этот email уже зарегистрирован' 
+      setError(err?.message ||
+               err?.error === 'EMAIL_EXISTS'
+                 ? 'Этот email уже зарегистрирован'
                  : 'Ошибка регистрации');
     } finally {
       setIsLoading(false);
@@ -142,7 +162,7 @@ export default function RegisterPage() {
       setCountdown(prev => {
         if (prev <= 1) {
           clearInterval(timer);
-          navigate('/login', { 
+          navigate('/login', {
             state: { fromRegistration: true },
             replace: true
           });
@@ -159,12 +179,12 @@ export default function RegisterPage() {
   if (registrationSuccess) {
     return (
       <div className="auth-page-container">
-        <div 
-          className="auth-background" 
+        <div
+          className="auth-background"
           style={{ backgroundImage: `url(${pddBackground})` }}
           aria-hidden="true"
         ></div>
-        
+
         <div className="auth-form-container">
           <div className="auth-form">
             <h1>Регистрация успешно завершена!</h1>
@@ -175,8 +195,8 @@ export default function RegisterPage() {
                 <p>Пожалуйста, проверьте вашу почту и следуйте инструкциям в письме.</p>
                 <p aria-live="assertive">Перенаправление на страницу входа через {countdown} секунд...</p>
               </div>
-              <Link 
-                to="/login" 
+              <Link
+                to="/login"
                 className="back-to-login"
                 state={{ fromRegistration: true }}
               >
@@ -193,12 +213,12 @@ export default function RegisterPage() {
   return (
     <div className="auth-page-container">
       <CloseButton />
-      <div 
-        className="auth-background" 
+      <div
+        className="auth-background"
         style={{ backgroundImage: `url(${pddBackground})` }}
         aria-hidden="true"
       ></div>
-      
+
       <div className="auth-form-container">
         <div className="auth-form">
           <h1>Регистрация</h1>
@@ -212,6 +232,7 @@ export default function RegisterPage() {
                   label={field.label}
                   value={field.value}
                   onChange={field.onChange}
+                  onBlur={field.onBlur}
                   required={field.required}
                   minLength={field.minLength}
                   disabled={isLoading}
@@ -229,9 +250,9 @@ export default function RegisterPage() {
             ))}
 
             {error && <div className="form-error" role="alert">{error}</div>}
-            
-            <button 
-              type="submit" 
+
+            <button
+              type="submit"
               className="submit-button"
               disabled={
                 isLoading ||
@@ -251,7 +272,7 @@ export default function RegisterPage() {
               {isLoading ? 'Регистрация...' : 'Зарегистрироваться'}
             </button>
           </form>
-          
+
           <p className="auth-link">
             Уже есть аккаунт? <Link to="/login">Войдите</Link>
           </p>
