@@ -112,9 +112,9 @@ export default function LoginPage() {
     } catch (err) {
       console.error('Ошибка авторизации:', err);
 
-      const serverError = err.response?.data;
+      const serverError = err.response?.data || err;
 
-      if (serverError?.error === 'EMAIL_NOT_VERIFIED') {
+      if (err.response?.status === 403 && serverError?.error === 'EMAIL_NOT_VERIFIED') {
         setFormError({
           message: serverError.message || 'Подтвердите email, письмо отправлено',
           canResend: serverError.canResend || false
@@ -122,12 +122,14 @@ export default function LoginPage() {
       } else {
         setFormError({
           message: serverError?.message ||
-                  'Неверные учетные данные или ошибка сервера',
+                  'Неверные учетные данные для входа',
           canResend: false
         });
       }
 
-      setFormData(prev => ({ ...prev, password: '' }));
+      if (err.response?.status !== 403 || serverError?.error !== 'EMAIL_NOT_VERIFIED') {
+        setFormData(prev => ({ ...prev, password: '' }));
+      }
     } finally {
       setIsLoading(false);
     }
