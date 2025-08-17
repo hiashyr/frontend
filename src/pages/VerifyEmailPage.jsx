@@ -10,7 +10,7 @@ export default function VerifyEmailPage() {
   const navigate = useNavigate();
   const [status, setStatus] = useState('loading');
   const [message, setMessage] = useState('');
-  const [countdown, setCountdown] = useState(5);
+  const [countdown, setCountdown] = useState(10);
   const [email, setEmail] = useState('');
 
   // Таймер обратного отсчета

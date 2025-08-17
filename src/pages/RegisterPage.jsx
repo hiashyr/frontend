@@ -20,7 +20,7 @@ export default function RegisterPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [registrationSuccess, setRegistrationSuccess] = useState(false);
   const [registeredEmail, setRegisteredEmail] = useState('');
-  const [countdown, setCountdown] = useState(5);
+  const [countdown, setCountdown] = useState(10);
   const [touched, setTouched] = useState({
     email: false,
     password: false,
@@ -178,32 +178,22 @@ export default function RegisterPage() {
   // Страница успешной регистрации
   if (registrationSuccess) {
     return (
-      <div className="auth-page-container">
-        <div
-          className="auth-background"
-          style={{ backgroundImage: `url(${pddBackground})` }}
-          aria-hidden="true"
-        ></div>
-
-        <div className="auth-form-container">
-          <div className="auth-form">
-            <h1>Регистрация успешно завершена!</h1>
-            <div className="success-message" role="status">
-              <div className="success-icon" aria-hidden="true">✓</div>
-              <div className="success-content">
-                <p>На адрес <strong>{registeredEmail}</strong> было отправлено письмо с подтверждением.</p>
-                <p>Пожалуйста, проверьте вашу почту и следуйте инструкциям в письме.</p>
-                <p aria-live="assertive">Перенаправление на страницу входа через {countdown} секунд...</p>
-              </div>
-              <Link
-                to="/login"
-                className="back-to-login"
-                state={{ fromRegistration: true }}
-              >
-                Перейти к входу сейчас
-              </Link>
-            </div>
-          </div>
+      <div className="verify-email-page">
+        <div className="verify-email-container">
+          <div className="success-icon">✓</div>
+          <h2>Регистрация успешно завершена!</h2>
+          <p>На адрес <strong>{registeredEmail}</strong> было отправлено письмо с подтверждением.</p>
+          <p>Пожалуйста, проверьте вашу почту и следуйте инструкциям в письме.</p>
+          <p>Перенаправление через <span className="countdown">{countdown}</span> секунд</p>
+          <button
+            onClick={() => navigate('/login', {
+              state: { fromRegistration: true },
+              replace: true
+            })}
+            className="primary-button"
+          >
+            Перейти сейчас
+          </button>
         </div>
       </div>
     );
