@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import API from '../../services/api';
-import AdminStatsCard from '../../components/admin/AdminStatsCard';
 import LoadingSpinner from '../../components/LoadingSpinner';
+import TestStatsCharts from '../../components/admin/TestStatsCharts';
 import './admin.css';
 import { useAuth } from '../../contexts/AuthContext';
 
@@ -22,7 +22,7 @@ export default function DashboardPage() {
 
     const fetchStats = async () => {
       try {
-        const { data } = await API.get('/users/admin-stats'); // Проверьте правильность эндпоинта!
+        const { data } = await API.get('/admin/dashboard/stats'); // Обновляем эндпоинт
         setStats(data);
       } catch (err) {
         console.error('Ошибка загрузки статистики:', err);
@@ -60,23 +60,14 @@ export default function DashboardPage() {
       {isLoading ? (
         <div className="loading">Загрузка данных...</div>
       ) : (
-        <div className="stats-grid">
-          <AdminStatsCard
-            title="Пользователи"
-            value={stats.usersCount}
-            icon="👥"
-          />
-          <AdminStatsCard
-            title="Вопросы"
-            value={stats.questionsCount}
-            icon="❓"
-          />
-          <AdminStatsCard
-            title="Пройдено тестов"
-            value={stats.testsCompleted}
-            icon="✅"
-          />
-        </div>
+        <>
+
+
+          <div className="test-stats-section">
+            <h2>Статистика тестов</h2>
+            <TestStatsCharts stats={stats} />
+          </div>
+        </>
       )}
     </div>
   );
