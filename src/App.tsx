@@ -43,6 +43,7 @@ export default function App() {
 
               {/* Protected routes */}
               <Route element={<PrivateRoute />}>
+                {/* Profile */}
                 <Route path="/profile/*" element={<ProfilePage />} />
 
                 {/* Экзамен и тесты */}

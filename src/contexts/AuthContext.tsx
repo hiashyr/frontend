@@ -44,12 +44,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   // Функция для нормализации URL аватара
   const normalizeAvatarUrl = (userData: User): User => {
     if (!userData.avatarUrl) return userData;
-    
+
     // Если URL уже абсолютный
     if (userData.avatarUrl.startsWith('http') || userData.avatarUrl.startsWith('data:')) {
       return userData;
     }
-    
+
     // Добавляем базовый URL
     return {
       ...userData,
@@ -61,17 +61,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const fetchUserData = useCallback(async (): Promise<User> => {
     try {
       const { data } = await API.get('/users/me');
-      
+
       if (!data?.id || !data?.role) {
         throw new Error('Invalid user data structure');
       }
-      
+
       // Добавляем проверку и нормализацию аватара
       const normalizedUser = normalizeAvatarUrl({
         ...data,
         avatarUrl: data.avatar_url || data.avatarUrl // учитываем разные варианты названия поля
       });
-      
+
       setUser(normalizedUser);
       return normalizedUser;
     } catch (err) {
@@ -92,14 +92,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setIsInitialized(true);
         return;
       }
-  
+
       try {
         if (!API.defaults.headers.common['Authorization']) {
           API.defaults.headers.common['Authorization'] = `Bearer ${token}`;
         }
-        
+
         const userData = await fetchUserData();
-        
+
         // Дополнительная проверка для защиты от невалидных состояний
         if (!userData || !userData.id) {
           throw new Error('Invalid user data');
@@ -107,9 +107,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       } catch (err) {
         console.error('Authentication check failed:', err);
         if (!window.location.pathname.includes('/login')) {
-          navigate('/login', { 
+          navigate('/login', {
             replace: true,
-            state: { from: window.location.pathname } 
+            state: { from: window.location.pathname }
           });
         }
       } finally {
@@ -117,49 +117,74 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setIsInitialized(true);
       }
     };
-  
+
     if (!isInitialized) {
       verifyAuth();
     }
   }, [navigate, fetchUserData, isInitialized]);
 
-  const login = async (token: string, userData: User) => {
+    const login = async (token: string, userData: User) => {
+    console.log('Login called with:', { token, userData });
     localStorage.setItem('token', token);
     API.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-    
+
     try {
       // Получаем актуальные данные пользователя
-      await fetchUserData();
+      const user = await fetchUserData();
+      console.log('Fetched user data:', user);
+
+      // Set the user in the context
+      setUser(user);
+
+      // Check if the user is an admin and redirect to dashboard
+      if (user.role === 'admin') {
+        console.log('Redirecting admin to dashboard');
+        window.location.href = '/admin/dashboard';
+      } else {
+        console.log('Redirecting user to home');
+        window.location.href = '/';
+      }
     } catch (err) {
       console.error('Failed to fetch user data after login:', err);
       // В случае ошибки используем данные из ответа авторизации
       const normalizedUser = normalizeAvatarUrl(userData);
       setUser(normalizedUser);
+      console.log('Using fallback user data:', normalizedUser);
+
+      // Check if the user is an admin and redirect to dashboard
+      if (userData.role === 'admin') {
+        console.log('Redirecting admin to dashboard (fallback)');
+        window.location.href = '/admin/dashboard';
+      } else {
+        console.log('Redirecting user to home (fallback)');
+        window.location.href = '/';
+      }
     }
   };
 
   const logout = useCallback(() => {
+    console.log('Logout called');
     localStorage.removeItem('token');
     delete API.defaults.headers.common['Authorization'];
     setUser(null);
-    navigate('/login', { 
+    navigate('/login', {
       replace: true,
-      state: { from: window.location.pathname } 
+      state: { from: window.location.pathname }
     });
   }, [navigate]);
 
   const updateUser = useCallback((userData: Partial<User>) => {
     setUser(prev => {
       if (!prev) return null;
-      
+
       // Нормализуем URL аватара перед сохранением
       const updatedUser = normalizeAvatarUrl({ ...prev, ...userData });
-      
+
       // Добавим timestamp к URL аватара для избежания кеширования
       if (updatedUser.avatarUrl && !updatedUser.avatarUrl.includes('?')) {
         updatedUser.avatarUrl = `${updatedUser.avatarUrl}?t=${Date.now()}`;
       }
-      
+
       return updatedUser;
     });
   }, []);

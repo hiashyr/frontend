@@ -82,6 +82,8 @@ export default function LoginPage() {
     setFormError({ message: '', canResend: false });
 
     try {
+      console.log('Submitting login form', { email: formData.email });
+
       const { data } = await API.post('/users/login', {
         email: formData.email.trim(),
         password: formData.password
@@ -91,6 +93,9 @@ export default function LoginPage() {
         throw new Error('Неполные данные от сервера');
       }
 
+      console.log('Login successful, data received:', data);
+
+      // Save the token and user data
       login(data.token, data.user);
 
       showNotification({
@@ -98,10 +103,8 @@ export default function LoginPage() {
         type: 'success'
       });
 
-      const redirectPath = location.state?.from?.pathname ||
-                         (data.user.role === 'admin' ? '/admin/dashboard' : '/');
-
-      navigate(redirectPath, {
+      // Let the AuthContext handle the redirection
+      navigate('/', {
         replace: true,
         state: {
           fromLogin: true,
