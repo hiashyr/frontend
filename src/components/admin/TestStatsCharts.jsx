@@ -2,6 +2,7 @@ import { Chart as ChartJS, registerables } from 'chart.js';
 import { Pie, Bar } from 'react-chartjs-2';
 import ChartDataLabels from 'chartjs-plugin-datalabels';
 import './TestStatsCharts.css';
+import SmallInfoBlocks from './SmallInfoBlocks';
 
 ChartJS.register(...registerables, ChartDataLabels);
 
@@ -51,71 +52,78 @@ export default function TestStatsCharts({ stats }) {
   };
 
   return (
-    <div className="test-stats-charts">
-      <div className="chart-container">
-        <h3>Успешные vs. Неуспешные тесты</h3>
-        <div className="chart-inner">
-          <Pie
-            data={pieChartData}
-            options={{
-              ...commonOptions,
-              plugins: {
-                ...commonOptions.plugins,
-                datalabels: {
-                  formatter: (value) => `${value}`,
-                  color: '#fff',
-                  font: {
-                    weight: 'bold'
+    <div>
+      <div className="test-stats-charts">
+        <div className="chart-container">
+          <h3>Успешные vs. Неуспешные тесты</h3>
+          <div className="chart-inner">
+            <Pie
+              data={pieChartData}
+              options={{
+                ...commonOptions,
+                plugins: {
+                  ...commonOptions.plugins,
+                  datalabels: {
+                    formatter: (value) => `${value}`,
+                    color: '#fff',
+                    font: {
+                      weight: 'bold'
+                    }
                   }
                 }
-              }
-            }}
-          />
+              }}
+            />
+          </div>
         </div>
-      </div>
 
-      <div className="chart-container">
-        <h3>Тесты по режиму</h3>
-        <div className="chart-inner">
-          <Bar
-            data={barChartData}
-            options={{
-              ...commonOptions,
-              indexAxis: 'y',
-              scales: {
-                y: {
-                  beginAtZero: true
-                }
-              },
-              plugins: {
-                ...commonOptions.plugins,
-                datalabels: {
-                  anchor: 'end',
-                  align: 'right',
-                  formatter: (value) => value,
-                  font: {
-                    weight: 'bold'
+        <div className="chart-container">
+          <h3>Тесты по режиму</h3>
+          <div className="chart-inner">
+            <Bar
+              data={barChartData}
+              options={{
+                ...commonOptions,
+                indexAxis: 'y',
+                scales: {
+                  y: {
+                    beginAtZero: true
+                  }
+                },
+                plugins: {
+                  ...commonOptions.plugins,
+                  datalabels: {
+                    anchor: 'end',
+                    align: 'right',
+                    formatter: (value) => value,
+                    font: {
+                      weight: 'bold'
+                    }
                   }
                 }
-              }
-            }}
-          />
+              }}
+            />
+          </div>
         </div>
-      </div>
 
-      <div className="chart-container">
-        <h3>Статистика по темам</h3>
-        <div className="chart-inner">
-          <div className="stats-box">
-            <p className="stats-label">Процент правильных ответов:</p>
-            <p className="stats-value">{stats.averageCorrectRate}%</p>
-            <h3>Самая популярная тема:</h3>
-            <p className="stats-value">{mostPopularTopic.name}</p>
-            <p className="stats-label">Количество сессий:</p>
-            <p className="stats-value">{mostPopularTopic.sessionCount}</p>
+        <div className="chart-container">
+          <h3>Статистика по темам</h3>
+          <div className="chart-inner" style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+            <div className="stats-box">
+              <div>
+                <p className="stats-label">Процент правильных ответов:</p>
+                <p className="stats-value">{stats.averageCorrectRate}%</p>
+              </div>
+              <div>
+                <h3>Самая популярная тема:</h3>
+                <p className="stats-value">{mostPopularTopic.name}</p>
+                <p className="stats-label">Количество сессий:</p>
+                <p className="stats-value">{mostPopularTopic.sessionCount}</p>
+              </div>
+            </div>
           </div>
         </div>
       </div>
+      <SmallInfoBlocks stats={stats} />
     </div>
   );
 }
