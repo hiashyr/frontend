@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import API from '../../services/api';
 import LoadingSpinner from '../../components/LoadingSpinner';
 import { useAuth } from '../../contexts/AuthContext';
@@ -120,8 +120,12 @@ const QuestionsPage = () => {
                 <tbody>
                   {(searchTerm ? filteredQuestions : questions).map(question => (
                     <tr key={question.id}>
-                      <td>{question.id}</td>
-                      <td>{question.text}</td>
+                      <td>
+                        <Link to={`/admin/questions/${question.id}`}>{question.id}</Link>
+                      </td>
+                      <td>
+                        <Link to={`/admin/questions/${question.id}`}>{question.text}</Link>
+                      </td>
                       <td>{question.topic.name}</td>
                       <td>
                         {question.answers

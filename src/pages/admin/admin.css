@@ -201,3 +201,114 @@
   border-color: #330570;
   outline: none;
 }
+
+/* Styles for question detail page */
+.question-detail-page {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.question-details {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.question-field {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.question-field label {
+  font-weight: bold;
+}
+
+.question-field input,
+.question-field select,
+.question-field textarea {
+  padding: 8px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 1rem;
+  transition: border-color 0.3s;
+}
+
+.question-field input:focus,
+.question-field select:focus,
+.question-field textarea:focus {
+  border-color: #330570;
+  outline: none;
+}
+
+.answer-field {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.answer-field input[type="checkbox"] {
+  margin-right: 5px;
+}
+
+.button-group {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.edit-btn,
+.save-btn,
+.delete-btn {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 10px 15px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.edit-btn {
+  background-color: #330570;
+  color: white;
+}
+
+.save-btn {
+  background-color: #28a745;
+  color: white;
+}
+
+.delete-btn {
+  background-color: #dc3545;
+  color: white;
+}
+
+.edit-btn:hover,
+.save-btn:hover,
+.delete-btn:hover {
+  opacity: 0.9;
+}
+
+/* Message styles */
+.success-message,
+.error-message {
+  padding: 10px 15px;
+  border-radius: 5px;
+  color: white;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.success-message {
+  background-color: #28a745;
+}
+
+.error-message {
+  background-color: #dc3545;
+}

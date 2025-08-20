@@ -25,6 +25,7 @@ import HardModePage from './pages/tests/HardModePage';
 import HardModeTestPage from './pages/tests/HardModeTestPage';
 import HardModeResultsPage from './pages/tests/HardModeResultsPage';
 import AboutExamPage from './pages/AboutExamPage';
+import QuestionDetailPage from './pages/admin/QuestionDetailPage'
 
 export default function App() {
   return (
@@ -64,6 +65,7 @@ export default function App() {
                 <Route path="/admin" element={<AdminLayout />}>
                   <Route path="dashboard" element={<DashboardPage />} />
                   <Route path="questions" element={<QuestionsPage />} />
+                  <Route path="questions/:id" element={<QuestionDetailPage />} />
                 </Route>
               </Route>
 
