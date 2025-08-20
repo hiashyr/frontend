@@ -124,3 +124,80 @@
 .profile-close-btn:hover {
   color: red;
 }
+
+/* Styles for the questions page */
+.questions-page {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.questions-table {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.questions-table table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 20px;
+}
+
+.questions-table th,
+.questions-table td {
+  padding: 12px;
+  text-align: left;
+  border: 1px solid #ddd;
+}
+
+.questions-table th {
+  background-color: #f4f4f4;
+  font-weight: bold;
+}
+
+.questions-table tbody tr:nth-child(even) {
+  background-color: #f9f9f9;
+}
+
+.questions-table tbody tr:hover {
+  background-color: #f1f1f1;
+}
+
+.pagination {
+  display: flex;
+  justify-content: center;
+  gap: 5px;
+}
+
+.pagination button {
+  padding: 5px 10px;
+  border: 1px solid #ddd;
+  background-color: #fff;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.pagination button:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.pagination button:hover:not(:disabled) {
+  background-color: #f0f0f0;
+}
+
+/* Styles for search input */
+.search-input {
+  margin-bottom: 20px;
+  padding: 10px;
+  width: 100%;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 1rem;
+  transition: border-color 0.3s;
+}
+
+.search-input:focus {
+  border-color: #330570;
+  outline: none;
+}

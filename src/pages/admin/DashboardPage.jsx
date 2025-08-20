@@ -75,11 +75,9 @@ export default function DashboardPage() {
           {isLoading ? (
             <div className="loading">Загрузка данных...</div>
           ) : (
-            <>
               <div className="test-stats-section">
                 <TestStatsCharts stats={stats} />
               </div>
-            </>
           )}
         </div>
       </div>

@@ -20,12 +20,6 @@ export default function AdminSidebar() {
         >
           Управление вопросами
         </NavLink>
-        <NavLink
-          to="/admin/users"
-          className={({ isActive }) => isActive ? 'active' : ''}
-        >
-          Информация о пользователях
-        </NavLink>
       </nav>
     </div>
   );

@@ -6,6 +6,7 @@ import ForgotPasswordPage from "./pages/ForgotPasswordPage";
 import ResetPasswordPage from "./pages/ResetPasswordPage";
 import AdminLayout from './layouts/AdminLayout';
 import DashboardPage from './pages/admin/DashboardPage';
+import QuestionsPage from './pages/admin/QuestionsPage';
 import VerifyEmailPage from './pages/VerifyEmailPage';
 import ResendVerificationPage from './pages/ResendVerificationPage';
 import { NotificationProvider } from './contexts/NotificationContext';
@@ -62,6 +63,7 @@ export default function App() {
                 {/* Admin routes */}
                 <Route path="/admin" element={<AdminLayout />}>
                   <Route path="dashboard" element={<DashboardPage />} />
+                  <Route path="questions" element={<QuestionsPage />} />
                 </Route>
               </Route>
 
