@@ -63,13 +63,6 @@ export default function DashboardPage() {
     <div className="admin-layout">
       <div className="admin-content">
         <div className="dashboard-page">
-          <button
-            className="profile-close-btn"
-            onClick={() => navigate('/')}
-            aria-label="Закрыть страницу настроек"
-          >
-            <FaTimes aria-hidden="true" />
-          </button>
           <h1>Общий дашборд</h1>
 
           {isLoading ? (

@@ -3,19 +3,19 @@ import { useNavigate, useParams, Link } from 'react-router-dom';
 import API from '../../services/api';
 import LoadingSpinner from '../../components/LoadingSpinner';
 import { useAuth } from '../../contexts/AuthContext';
+import { useNotification } from '../../contexts/NotificationContext';
 import { FaTimes, FaEdit, FaTrash, FaSave, FaCheck, FaTimes as FaClose } from 'react-icons/fa';
 import AdminSidebar from '../../components/admin/AdminSidebar';
 import './admin.css';
 
 const QuestionDetailPage = () => {
   const { user } = useAuth();
+  const { showNotification } = useNotification();
   const { id } = useParams();
   const [question, setQuestion] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
-  const [successMessage, setSuccessMessage] = useState('');
-  const [errorMessage, setErrorMessage] = useState('');
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -47,30 +47,28 @@ const QuestionDetailPage = () => {
 
   const handleSave = async () => {
     try {
-      await API.put(`/admin/questions/${id}`, question);
+      const response = await API.put(`/admin/questions/${id}`, question);
+      if (response.notification) {
+        showNotification(response.notification);
+      }
       setIsEditing(false);
-      setSuccessMessage('Вопрос успешно обновлен');
-      setErrorMessage('');
-      setTimeout(() => setSuccessMessage(''), 3000);
     } catch (err) {
       console.error('Ошибка сохранения вопроса:', err);
-      setErrorMessage('Не удалось сохранить вопрос');
-      setSuccessMessage('');
-      setTimeout(() => setErrorMessage(''), 3000);
+      showNotification({ message: 'Не удалось сохранить вопрос', type: 'error' });
     }
   };
 
   const handleDelete = async () => {
     if (window.confirm('Вы уверены, что хотите удалить этот вопрос?')) {
       try {
-        await API.delete(`/admin/questions/${id}`);
+        const response = await API.delete(`/admin/questions/${id}`);
+        if (response.notification) {
+          showNotification(response.notification);
+        }
         navigate('/admin/questions');
-        setSuccessMessage('Вопрос успешно удален');
-        setTimeout(() => setSuccessMessage(''), 3000);
       } catch (err) {
         console.error('Ошибка удаления вопроса:', err);
-        setErrorMessage('Не удалось удалить вопрос');
-        setTimeout(() => setErrorMessage(''), 3000);
+        showNotification({ message: 'Не удалось удалить вопрос', type: 'error' });
       }
     }
   };
@@ -116,24 +114,7 @@ const QuestionDetailPage = () => {
     <div className="admin-layout">
       <div className="admin-content">
         <div className="question-detail-page">
-          <button
-            className="profile-close-btn"
-            onClick={() => navigate('/admin/questions')}
-            aria-label="Закрыть страницу настроек"
-          >
-            <FaTimes aria-hidden="true" />
-          </button>
           <h1>Подробнее о вопросе</h1>
-          {successMessage && (
-            <div className="success-message">
-              <FaCheck /> {successMessage}
-            </div>
-          )}
-          {errorMessage && (
-            <div className="error-message">
-              <FaClose /> {errorMessage}
-            </div>
-          )}
           <div className="button-group">
             {isEditing ? (
               <button className="save-btn" onClick={handleSave}>
@@ -196,7 +177,7 @@ const QuestionDetailPage = () => {
                     onChange={(e) => handleChange(e, 'imageUrl')}
                   />
                 ) : (
-                  <img src={question.imageUrl} alt="Question" width="100" />
+                  <img src={question.imageUrl} alt="Question" width="600" />
                 )}
               </div>
             )}

@@ -27,8 +27,8 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
   };
 
   const showNotification = (notification: NotificationType) => {
-    // Если уже есть уведомление, сначала закрываем его
     if (notification) {
+      // Если уже есть уведомление, сначала закрываем его
       setIsClosing(true);
       setTimeout(() => {
         setNotification(notification);
@@ -36,10 +36,6 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
         // Устанавливаем таймер для автоматического закрытия
         setTimeout(closeNotification, 3000);
       }, 300);
-    } else {
-      setNotification(notification);
-      // Устанавливаем таймер для автоматического закрытия
-      setTimeout(closeNotification, 3000);
     }
   };
 

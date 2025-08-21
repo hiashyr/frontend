@@ -3,12 +3,14 @@ import { Link, useNavigate } from 'react-router-dom';
 import API from '../../services/api';
 import LoadingSpinner from '../../components/LoadingSpinner';
 import { useAuth } from '../../contexts/AuthContext';
+import { useNotification } from '../../contexts/NotificationContext';
 import { FaTimes } from 'react-icons/fa';
 import AdminSidebar from '../../components/admin/AdminSidebar';
 import './admin.css';
 
 const QuestionsPage = () => {
   const { user } = useAuth();
+  const { showNotification } = useNotification();
   const [questions, setQuestions] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(0);
@@ -30,6 +32,7 @@ const QuestionsPage = () => {
     } catch (err) {
       console.error('Ошибка загрузки вопросов:', err);
       setError('Не удалось загрузить вопросы');
+      showNotification({ message: 'Не удалось загрузить вопросы', type: 'error' });
     } finally {
       setIsLoading(false);
     }
@@ -89,13 +92,6 @@ const QuestionsPage = () => {
     <div className="admin-layout">
       <div className="admin-content">
         <div className="questions-page">
-          <button
-            className="profile-close-btn"
-            onClick={() => navigate('/')}
-            aria-label="Закрыть страницу настроек"
-          >
-            <FaTimes aria-hidden="true" />
-          </button>
           <h1>Управление вопросами</h1>
           <input
             type="text"
@@ -119,19 +115,29 @@ const QuestionsPage = () => {
                 </thead>
                 <tbody>
                   {(searchTerm ? filteredQuestions : questions).map(question => (
-                    <tr key={question.id}>
+                    <tr key={question.id} className="question-row">
                       <td>
-                        <Link to={`/admin/questions/${question.id}`}>{question.id}</Link>
+                        <Link to={`/admin/questions/${question.id}`} className="question-link">
+                          {question.id}
+                        </Link>
                       </td>
                       <td>
-                        <Link to={`/admin/questions/${question.id}`}>{question.text}</Link>
+                        <Link to={`/admin/questions/${question.id}`} className="question-link">
+                          {question.text}
+                        </Link>
                       </td>
-                      <td>{question.topic.name}</td>
                       <td>
-                        {question.answers
-                          .filter(answer => answer.isCorrect)
-                          .map(answer => answer.text)
-                          .join(', ')}
+                        <Link to={`/admin/questions/${question.id}`} className="question-link">
+                          {question.topic.name}
+                        </Link>
+                      </td>
+                      <td>
+                        <Link to={`/admin/questions/${question.id}`} className="question-link">
+                          {question.answers
+                            .filter(answer => answer.isCorrect)
+                            .map(answer => answer.text)
+                            .join(', ')}
+                        </Link>
                       </td>
                     </tr>
                   ))}
