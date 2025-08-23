@@ -50,6 +50,8 @@ const QuestionDetailPage = () => {
       const response = await API.put(`/admin/questions/${id}`, question);
       if (response.notification) {
         showNotification(response.notification);
+      } else {
+        showNotification({ message: 'Вопрос успешно сохранен', type: 'success' });
       }
       setIsEditing(false);
     } catch (err) {
@@ -64,6 +66,8 @@ const QuestionDetailPage = () => {
         const response = await API.delete(`/admin/questions/${id}`);
         if (response.notification) {
           showNotification(response.notification);
+        } else {
+          showNotification({ message: 'Вопрос успешно удален', type: 'success' });
         }
         navigate('/admin/questions');
       } catch (err) {
@@ -74,11 +78,20 @@ const QuestionDetailPage = () => {
   };
 
   const handleChange = (e, field, answerIndex = null) => {
-    const value = e.target.value;
+    const value = field === 'isCorrect' ? e.target.checked : e.target.value;
+
     if (answerIndex !== null) {
-      const newAnswers = [...question.answers];
-      newAnswers[answerIndex][field] = value;
-      setQuestion({ ...question, answers: newAnswers });
+      if (field === 'isCorrect' && value) {
+        // If marking an answer as correct, unmark all others
+        const newAnswers = question.answers.map((answer, idx) =>
+          idx === answerIndex ? { ...answer, isCorrect: true } : { ...answer, isCorrect: false }
+        );
+        setQuestion({ ...question, answers: newAnswers });
+      } else {
+        const newAnswers = [...question.answers];
+        newAnswers[answerIndex][field] = value;
+        setQuestion({ ...question, answers: newAnswers });
+      }
     } else if (field.includes('.')) {
       const [parent, child] = field.split('.');
       setQuestion(prevQuestion => ({
@@ -144,7 +157,7 @@ const QuestionDetailPage = () => {
               )}
             </div>
             <div className="question-field">
-              <label>Название вопроса:</label>
+              <label>Вопрос:</label>
               {isEditing ? (
                 <input
                   type="text"

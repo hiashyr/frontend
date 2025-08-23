@@ -21,6 +21,11 @@ export default function AdminSidebar() {
           Управление вопросами
         </NavLink>
       </nav>
+      <div className="admin-sidebar-footer">
+        <button onClick={logout} className="logout-button">
+          Выйти
+        </button>
+      </div>
     </div>
   );
 }

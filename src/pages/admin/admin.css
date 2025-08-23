@@ -15,6 +15,8 @@
   top: 0;
   height: 100vh;
   overflow-y: auto;
+  display: flex;
+  flex-direction: column;
 }
 
 .admin-nav {
@@ -28,12 +30,18 @@
   color: #333;
   text-decoration: none;
   border-radius: 5px;
-  transition: background 0.3s;
+  background-color: #f0f0f0; /* Gray background */
+  transition: background 0.3s, transform 0.2s;
 }
 
 .admin-nav a.active {
   background: #330570;
   color: white;
+}
+
+.admin-nav a:hover {
+  background: #e0e0e0; /* Lighter gray on hover */
+  transform: scale(1.05); /* Slightly enlarge on hover */
 }
 
 .admin-content {
@@ -143,8 +151,11 @@
 }
 
 .questions-table tbody tr:hover {
-  background-color: #f1f1f1;
+  background-color: #e0e0e0; /* Lighter background on hover */
+  transform: scale(1.01); /* Slightly enlarge the row */
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1); /* Add subtle shadow */
   cursor: pointer; /* Add pointer cursor on hover */
+  transition: all 0.2s ease; /* Smooth transition */
 }
 
 .questions-table a {
@@ -179,6 +190,12 @@
 
 .pagination button:hover:not(:disabled) {
   background-color: #f0f0f0;
+}
+
+.pagination button:disabled {
+  background-color: #330570; /* Highlight current page */
+  color: white; /* White text for current page */
+  cursor: default; /* Change cursor to default for current page */
 }
 
 /* Styles for search input */
@@ -306,4 +323,27 @@
 
 .error-message {
   background-color: #dc3545;
+}
+
+/* Admin Sidebar Footer Styles */
+.admin-sidebar-footer {
+  margin-top: auto;
+  padding: 20px;
+  border-top: 1px solid #ddd;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+.logout-button {
+  padding: 10px 15px;
+  background-color: #dc3545;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.logout-button:hover {
+  background-color: #c82333;
 }
