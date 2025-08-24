@@ -109,7 +109,6 @@
   color: #333;
 }
 
-
 /* Styles for the questions page */
 .questions-page {
   display: flex;
@@ -346,4 +345,19 @@
 
 .logout-button:hover {
   background-color: #c82333;
+}
+
+/* Green button styling */
+.add-question-button {
+  background-color: #28a745; /* Green color */
+  color: white;
+  border: none;
+  padding: 10px 15px;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.add-question-button:hover {
+  background-color: #218838; /* Darker green on hover */
 }

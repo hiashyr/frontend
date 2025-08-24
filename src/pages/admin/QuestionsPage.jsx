@@ -93,6 +93,9 @@ const QuestionsPage = () => {
       <div className="admin-content">
         <div className="questions-page">
           <h1>Управление вопросами</h1>
+          <Link to="/admin/questions/add">
+            <button className="add-question-button">Добавить вопрос</button>
+          </Link>
           <input
             type="text"
             placeholder="Поиск по вопросам..."
