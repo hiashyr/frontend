@@ -28,8 +28,9 @@ const AddQuestionPage = () => {
 
     const fetchTopics = async () => {
       try {
-        const { data } = await API.get('/topics');
-        setTopics(Array.isArray(data) ? data : []);
+        const { data } = await API.get('/topics?_t=' + new Date().getTime());
+        console.log('Fetched topics data:', data);
+        setTopics(data.data);
       } catch (err) {
         console.error('Ошибка загрузки тем:', err);
         setError('Не удалось загрузить темы');
@@ -43,6 +44,10 @@ const AddQuestionPage = () => {
       fetchTopics();
     }
   }, [user, navigate, showNotification]);
+
+  useEffect(() => {
+    console.log('Topics state updated:', topics);
+  }, [topics]);
 
   const handleAddAnswer = () => {
     setAnswers([...answers, { text: '', isCorrect: false }]);
