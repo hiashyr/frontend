@@ -16,16 +16,9 @@ export default function AdminSidebar() {
         </NavLink>
         <NavLink
           to="/admin/questions"
-          end
           className={({ isActive }) => isActive ? 'active' : ''}
         >
           Управление вопросами
-        </NavLink>
-        <NavLink
-          to="/admin/questions/add"
-          className={({ isActive }) => isActive ? 'active' : ''}
-        >
-          Добавить вопрос
         </NavLink>
       </nav>
       <div className="admin-sidebar-footer">

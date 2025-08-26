@@ -19,6 +19,7 @@ const AddQuestionPage = () => {
   const [error, setError] = useState(null);
   const [isHard, setIsHard] = useState(false);
   const [imageFile, setImageFile] = useState(null);
+  const [isImageUploadEnabled, setIsImageUploadEnabled] = useState(false);
 
   useEffect(() => {
     if (user && user.role !== 'admin') {
@@ -107,6 +108,10 @@ const AddQuestionPage = () => {
       </div>
     );
   }
+  
+  const toggleImageUpload = () => {
+    setIsImageUploadEnabled(!isImageUploadEnabled);
+  };
 
   return (
     <div className="admin-layout">
@@ -163,25 +168,49 @@ const AddQuestionPage = () => {
               </button>
             </div>
             <div className="form-group">
-              <label>
+              <span>
+                {isHard ? 'Сложный' : 'Не сложный'} вопрос
+              </span>
+              <label className="switch">
                 <input
                   type="checkbox"
                   checked={isHard}
                   onChange={(e) => setIsHard(e.target.checked)}
                 />
-                Сложный вопрос
+                <span className="slider round"></span>
               </label>
             </div>
+          <div>
+            {/* Свитчер */}
             <div className="form-group">
-              <label>
-                Загрузить изображение:
+              <span>
+                {isImageUploadEnabled ? 'Выключить' : 'Включить'} загрузку изображения
+              </span>
+              <label className="switch">
                 <input
-                  type="file"
-                  accept="image/*"
-                  onChange={handleImageChange}
+                  type="checkbox"
+                  checked={isImageUploadEnabled}
+                  onChange={toggleImageUpload}
                 />
+                <span className="slider round"></span>
               </label>
             </div>
+
+            {/* Блок загрузки изображения */}
+            {isImageUploadEnabled && (
+              <div className="form-group">
+                <label>
+                  Загрузить изображение:
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleImageChange}
+                  />
+                </label>
+              </div>
+            )}
+          </div>
+
             <button type="submit" className="submit-button" disabled={isLoading}>
               {isLoading ? 'Добавление...' : 'Добавить вопрос'}
             </button>
