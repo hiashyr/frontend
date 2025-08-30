@@ -57,7 +57,7 @@ export default function Header() {
             <span className="logo-text">ПДД Тренер</span>
           </Link>
         <nav className="nav" aria-label="Основная навигация" style={{ flex: 1 }}>
-          <Link to="/rules" className="nav-link" aria-label="Правила ПДД">
+          <Link to="/theory" className="nav-link" aria-label="Правила ПДД">
             <FaBook className="nav-icon" aria-hidden="true" />
             <span className="nav-text">Правила ПДД</span>
           </Link>

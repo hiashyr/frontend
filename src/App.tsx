@@ -27,6 +27,7 @@ import HardModeResultsPage from './pages/tests/HardModeResultsPage';
 import AboutExamPage from './pages/AboutExamPage';
 import QuestionDetailPage from './pages/admin/QuestionDetailPage'
 import AddQuestionPage from './pages/admin/AddQuestionPage';
+import TheoryPage from './pages/TheoryPage';
 
 export default function App() {
   return (
@@ -43,6 +44,7 @@ export default function App() {
               <Route path="/verify-email" element={<VerifyEmailPage />} />
               <Route path="/resend-verification" element={<ResendVerificationPage />} />
               <Route path="/about-exam" element={<AboutExamPage />} />
+              <Route path="/theory" element={<TheoryPage />} />
 
               {/* Protected routes */}
               <Route element={<PrivateRoute />}>

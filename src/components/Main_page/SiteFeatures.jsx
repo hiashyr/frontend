@@ -16,7 +16,7 @@ export default function SiteFeatures() {
             <p>
               Полный актуальный свод правил дорожного движения с комментариями и пояснениями
             </p>
-            <Link to="/rules" className="feature-link">
+            <Link to="/theory" className="feature-link">
               Изучить правила →
             </Link>
           </div>
