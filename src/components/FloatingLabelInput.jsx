@@ -1,15 +1,47 @@
-import React from "react";
+import React, { useState, useRef, useEffect } from "react";
 import "./FloatingLabelInput.css";
 
 const FloatingLabelInput = ({ label, id, className, ...props }) => {
+  const [isFocused, setIsFocused] = useState(false);
+  const [hasValue, setHasValue] = useState(false);
+  const inputRef = useRef(null);
+
+  const handleFocus = () => {
+    setIsFocused(true);
+  };
+
+  const handleBlur = () => {
+    setIsFocused(false);
+    setHasValue(!!inputRef.current.value);
+  };
+
+  const handleChange = (e) => {
+    setHasValue(!!e.target.value);
+  };
+
+  useEffect(() => {
+    setHasValue(!!inputRef.current.value);
+  }, []);
+
   return (
     <div className="floating-label-input-container">
-      <label htmlFor={id} className="floating-label">
+      <input
+        id={id}
+        ref={inputRef}
+        className={`floating-input${className ? ' ' + className : ''}`}
+        onFocus={handleFocus}
+        onBlur={handleBlur}
+        onChange={handleChange}
+        {...props}
+      />
+      <label
+        htmlFor={id}
+        className={`floating-label${isFocused || hasValue ? ' active' : ''}`}
+      >
         {label}
       </label>
-      <input id={id} className={`floating-input${className ? ' ' + className : ''}`} {...props} />
     </div>
   );
 };
 
-export default FloatingLabelInput; 
+export default FloatingLabelInput;

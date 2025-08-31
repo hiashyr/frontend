@@ -7,17 +7,26 @@
 
 .floating-label {
   position: absolute;
-  top: -14px;
-  left: 16px;
+  top: 50%;
+  left: 12px;
+  transform: translateY(-50%);
   background: #fff;
   padding: 0 8px;
-  font-size: 15px;
+  font-size: 16px;
   color: #1B1BB3;
   pointer-events: none;
   z-index: 2;
-  transition: color 0.2s;
+  transition: all 0.2s;
   border-radius: 8px;
   border: 1px solid #e0e0e0;
+}
+
+.floating-label.active {
+  top: -14px;
+  transform: translateY(0);
+  background: #fff;
+  color: #1976d2;
+  border-color: #1976d2;
 }
 
 .floating-input {
@@ -69,4 +78,4 @@
 }
 .input-invalid-icon {
   color: #e53935;
-} 
+}
