@@ -1,6 +1,6 @@
 // src/contexts/NotificationContext.tsx
 import { createContext, useContext, useState, ReactNode } from 'react';
-import Notification from '../components/Notification/Notification';
+import NewNotification from '../components/Notification/NewNotification';
 
 interface NotificationType {
   message: string;
@@ -27,6 +27,7 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
   };
 
   const showNotification = (notification: NotificationType) => {
+    console.log('Showing notification:', notification);
     if (notification) {
       // Если уже есть уведомление, сначала закрываем его
       setIsClosing(true);
@@ -43,7 +44,7 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
     <NotificationContext.Provider value={{ showNotification }}>
       {children}
       {notification && (
-        <Notification
+        <NewNotification
           message={notification.message}
           type={notification.type}
           onClose={closeNotification}

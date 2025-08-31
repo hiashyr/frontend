@@ -9,6 +9,7 @@ import pddBackground from '.././assets/pdd-background.jpg'
 import FloatingLabelInput from '../components/FloatingLabelInput';
 import CloseButton from '../components/CloseButton/CloseButton';
 import { validateEmail, validatePassword } from '../utils/validation';
+import NewNotification from '../components/Notification/NewNotification';
 
 export default function LoginPage() {
   const { showNotification } = useNotification();
@@ -37,6 +38,8 @@ export default function LoginPage() {
     password: false
   });
   const [wasSubmitted, setWasSubmitted] = useState(false);
+  const [notification, setNotification] = useState(null);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
 
   useEffect(() => {
     const newErrors = { ...errors };
@@ -98,12 +101,10 @@ export default function LoginPage() {
       // Save the token and user data
       login(data.token, data.user);
 
-      showNotification({
-        message: 'Авторизация прошла успешно!',
-        type: 'success'
-      });
+      // Show notification after the second request to /api/users/me
+      setIsAuthenticated(true);
 
-      // Let the AuthContext handle the redirection
+      // Redirect to home page with state
       navigate('/', {
         replace: true,
         state: {
@@ -195,6 +196,15 @@ export default function LoginPage() {
     }
   ];
 
+  useEffect(() => {
+    if (isAuthenticated) {
+      setNotification({
+        message: 'Авторизация прошла успешно!',
+        type: 'success'
+      });
+    }
+  }, [isAuthenticated]);
+
   return (
     <div className="auth-page-container">
       <CloseButton />
@@ -269,6 +279,14 @@ export default function LoginPage() {
           </p>
         </div>
       </div>
+
+      {notification && (
+        <NewNotification
+          message={notification.message}
+          type={notification.type}
+          onClose={() => setNotification(null)}
+        />
+      )}
     </div>
   );
 }
