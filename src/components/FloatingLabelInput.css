@@ -18,7 +18,7 @@
   z-index: 2;
   transition: all 0.2s;
   border-radius: 8px;
-  border: 1px solid #e0e0e0;
+  border: none;
 }
 
 .floating-label.active {
@@ -26,7 +26,7 @@
   transform: translateY(0);
   background: #fff;
   color: #1976d2;
-  border-color: #1976d2;
+  border: 1px solid #1976d2;
 }
 
 .floating-input {

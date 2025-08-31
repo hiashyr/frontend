@@ -5,6 +5,7 @@ import { useNotification } from '../contexts/NotificationContext';
 import pddBackground from '../assets/pdd-background.jpg';
 import './AuthPage.css';
 import { validatePassword, validatePasswordConfirm } from '../utils/validation';
+import FloatingLabelInput from '../components/FloatingLabelInput';
 
 const ResetPasswordPage = () => {
   const [searchParams] = useSearchParams();
@@ -209,10 +210,10 @@ const ResetPasswordPage = () => {
           <h2>Смена пароля</h2>
           <form onSubmit={handleSubmit}>
             <div className="form-group">
-              <input
+              <FloatingLabelInput
                 type="password"
                 name="newPassword"
-                placeholder="Новый пароль (минимум 6 символов)"
+                label="Новый пароль (минимум 6 символов)"
                 value={newPassword}
                 onChange={(e) => setNewPassword(e.target.value)}
                 onBlur={() => handleBlur('newPassword')}
@@ -227,10 +228,10 @@ const ResetPasswordPage = () => {
             </div>
 
             <div className="form-group">
-              <input
+              <FloatingLabelInput
                 type="password"
                 name="confirmPassword"
-                placeholder="Подтвердите пароль"
+                label="Подтвердите пароль"
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 onBlur={() => handleBlur('confirmPassword')}

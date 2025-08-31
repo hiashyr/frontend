@@ -23,6 +23,8 @@ const FloatingLabelInput = ({ label, id, className, ...props }) => {
     setHasValue(!!inputRef.current.value);
   }, []);
 
+  const displayLabel = isFocused || hasValue ? label.split(' (')[0] : label;
+
   return (
     <div className="floating-label-input-container">
       <input
@@ -38,7 +40,7 @@ const FloatingLabelInput = ({ label, id, className, ...props }) => {
         htmlFor={id}
         className={`floating-label${isFocused || hasValue ? ' active' : ''}`}
       >
-        {label}
+        {displayLabel}
       </label>
     </div>
   );
