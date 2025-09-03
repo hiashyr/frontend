@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { api } from '../services/api';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
-import './TheoryPage.css'; // Создай этот файл для своих стилей
+import './TheoryPage.css';
 
 const TheoryPage = () => {
   const [topics, setTopics] = useState([]);
@@ -11,6 +11,7 @@ const TheoryPage = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState([]);
   const [expandedSections, setExpandedSections] = useState({});
+  const [isSearchPerformed, setIsSearchPerformed] = useState(false);
 
   useEffect(() => {
     const fetchTheoryData = async () => {
@@ -29,11 +30,25 @@ const TheoryPage = () => {
     fetchTheoryData();
   }, []);
 
-  const handleSearch = (e) => {
-    const query = e.target.value.toLowerCase();
-    setSearchQuery(query);
+  const handleSearchInputChange = (e) => {
+    setSearchQuery(e.target.value);
+    // Сбрасываем результаты поиска при изменении запроса
+    if (isSearchPerformed) {
+      setIsSearchPerformed(false);
+      setSearchResults([]);
+    }
+  };
 
+  const performSearch = () => {
+    if (!searchQuery.trim()) {
+      setSearchResults([]);
+      setIsSearchPerformed(false);
+      return;
+    }
+
+    const query = searchQuery.toLowerCase();
     const results = [];
+
     topics.forEach((topic) => {
       if (topic.text.toLowerCase().includes(query)) {
         results.push({ type: 'topic', id: topic.id, text: topic.text });
@@ -51,6 +66,34 @@ const TheoryPage = () => {
     });
 
     setSearchResults(results);
+    setIsSearchPerformed(true);
+
+    // Автоматически раскрываем все секции при поиске
+    const newExpandedSections = {};
+    results.forEach(result => {
+      if (result.type === 'topic') {
+        newExpandedSections[`topic-${result.id}`] = true;
+      } else if (result.type === 'point') {
+        newExpandedSections[`topic-${result.topicId}`] = true;
+        newExpandedSections[`point-${result.id}`] = true;
+      } else if (result.type === 'rule') {
+        newExpandedSections[`topic-${result.topicId}`] = true;
+        newExpandedSections[`point-${result.pointId}`] = true;
+      }
+    });
+    setExpandedSections(newExpandedSections);
+  };
+
+  const handleKeyPress = (e) => {
+    if (e.key === 'Enter') {
+      performSearch();
+    }
+  };
+
+  const clearSearch = () => {
+    setSearchQuery('');
+    setSearchResults([]);
+    setIsSearchPerformed(false);
   };
 
   if (loading) {
@@ -75,76 +118,88 @@ const TheoryPage = () => {
     }));
   };
 
+  // Функция для определения, нужно ли показывать элемент при поиске
+  const shouldShowElement = (element, elementType, id, parentIds = {}) => {
+    if (!isSearchPerformed) return true;
+
+    return searchResults.some(result => {
+      if (result.type === elementType && result.id === id) return true;
+      if (elementType === 'point' && result.type === 'rule' && result.pointId === id) return true;
+      if (elementType === 'topic' && (
+        (result.type === 'point' && result.topicId === id) ||
+        (result.type === 'rule' && result.topicId === id)
+      )) return true;
+      return false;
+    });
+  };
+
   return (
     <div className="page-container">
       <Header />
       <main className="theory-main">
         <div className="theory-container">
           <h1 className="theory-title">Теория ПДД 2024</h1>
+
           <div className="search-container">
+            <label htmlFor="search-input" className="search-label">Поиск:</label>
             <input
+              id="search-input"
               type="text"
               placeholder="Поиск..."
               value={searchQuery}
-              onChange={handleSearch}
+              onChange={handleSearchInputChange}
+              onKeyPress={handleKeyPress}
               className="search-input"
             />
-            {searchResults.length > 0 && (
-              <div className="search-results">
-                <h3>Результаты поиска:</h3>
-                <ul>
-                  {searchResults.map((result, index) => (
-                    <li key={index}>
-                      {result.type === 'topic' && (
-                        <a href={`#topic-${result.id}`} onClick={(e) => { e.preventDefault(); handleScrollToSection(`topic-${result.id}`); }}>
-                          {result.text}
-                        </a>
-                      )}
-                      {result.type === 'point' && (
-                        <a href={`#point-${result.id}`} onClick={(e) => { e.preventDefault(); handleScrollToSection(`point-${result.id}`); }}>
-                          {result.text}
-                        </a>
-                      )}
-                      {result.type === 'rule' && (
-                        <a href={`#rule-${result.id}`} onClick={(e) => { e.preventDefault(); handleScrollToSection(`rule-${result.id}`); }}>
-                          {result.text}
-                        </a>
-                      )}
-                    </li>
-                  ))}
-                </ul>
-              </div>
+            <button onClick={performSearch} className="search-button">
+              Найти
+            </button>
+            {isSearchPerformed && (
+              <button onClick={clearSearch} className="clear-search-button">
+                Очистить
+              </button>
             )}
           </div>
-                    <div className="topics-list">
+
+          {isSearchPerformed && searchResults.length === 0 && (
+            <div className="no-results">
+              <p>Ничего не найдено по запросу "{searchQuery}"</p>
+            </div>
+          )}
+
+          <div className="topics-list">
             {topics.map((topic) => (
-              <div key={topic.id} id={`topic-${topic.id}`} className="topic-section">
-                <h2 onClick={() => toggleSection(`topic-${topic.id}`)} style={{ cursor: 'pointer' }}>
-                  {topic.text} {expandedSections[`topic-${topic.id}`] ? '-' : '+'}
-                </h2> {/* Используем text, а не name */}
-
-                {expandedSections[`topic-${topic.id}`] && (
-                  <div className="points-list">
-                    {topic.points?.map((point) => (
-                      <div key={point.id} className="point-section">
-                        <h3 onClick={() => toggleSection(`point-${point.id}`)} style={{ cursor: 'pointer' }}>
-                          {point.text} {expandedSections[`point-${point.id}`] ? '-' : '+'}
-                        </h3> {/* Используем text, а не name */}
-
-                        {expandedSections[`point-${point.id}`] && (
-                          <div className="rules-list">
-                            {point.rules?.map((rule) => (
-                              <div key={rule.id} className="rule-item">
-                                <p>{rule.text}</p> {/* Используем text, а не name */}
+              shouldShowElement(topic, 'topic', topic.id) && (
+                <div key={topic.id} id={`topic-${topic.id}`} className="topic-section">
+                  <h2 onClick={() => toggleSection(`topic-${topic.id}`)} style={{ cursor: 'pointer' }}>
+                    {topic.text} {expandedSections[`topic-${topic.id}`] ? '-' : '+'}
+                  </h2>
+                  {expandedSections[`topic-${topic.id}`] && (
+                    <div className="points-list">
+                      {topic.points?.map((point) => (
+                        shouldShowElement(point, 'point', point.id, { topicId: topic.id }) && (
+                          <div key={point.id} id={`point-${point.id}`} className="point-section">
+                            <h3 onClick={() => toggleSection(`point-${point.id}`)} style={{ cursor: 'pointer' }}>
+                              {point.text} {expandedSections[`point-${point.id}`] ? '-' : '+'}
+                            </h3>
+                            {expandedSections[`point-${point.id}`] && (
+                              <div className="rules-list">
+                                {point.rules?.map((rule) => (
+                                  shouldShowElement(rule, 'rule', rule.id, { pointId: point.id, topicId: topic.id }) && (
+                                    <div key={rule.id} id={`rule-${rule.id}`} className="rule-item">
+                                      <p>{rule.text}</p>
+                                    </div>
+                                  )
+                                ))}
                               </div>
-                            ))}
+                            )}
                           </div>
-                        )}
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
+                        )
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )
             ))}
           </div>
         </div>

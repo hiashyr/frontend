@@ -123,16 +123,18 @@ const AvatarUpload = () => {
         )}
       </div>
 
-      <div className="upload-controls">
+<div className="upload-controls">
+        <label htmlFor="avatar-upload" className="sr-only">Загрузить аватар</label>
         <input
           type="file"
+          id="avatar-upload"
           ref={fileInputRef}
           accept=".jpg,.jpeg,.png,.webp"
           onChange={handleFileChange}
           className="file-input"
         />
-        <button 
-          type="button" 
+        <button
+          type="button"
           onClick={triggerFileInput}
           className="upload-button"
           disabled={isLoading}

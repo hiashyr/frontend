@@ -100,9 +100,22 @@
     cursor: not-allowed;
   }
   
-  .file-hint {
+.file-hint {
     font-size: 0.8rem;
     color: #666;
     margin-top: 0.5rem;
+    text-align: center;
+  }
+
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    border: 0;
+    white-space: nowrap;
     text-align: center;
   }

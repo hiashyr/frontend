@@ -192,7 +192,7 @@
 }
 
 .status-passed span, .status-passed .info-icon {
-  color: #2F855A;
+  color: #2E7D32; /* Darker green for better contrast */
 }
 .status-failed span, .status-failed .info-icon {
   color: #C53030;

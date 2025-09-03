@@ -1,6 +1,6 @@
 import './Footer.css'
 import { Link } from 'react-router-dom';
-import { FaCar, FaBook, FaInfoCircle, FaShieldAlt, FaEnvelope, FaCopyright} from 'react-icons/fa';
+import { FaCar, FaBook, FaInfoCircle, FaShieldAlt, FaEnvelope, FaCopyright, FaClipboardList } from 'react-icons/fa';
 
 export default function Footer() {
   return (
@@ -15,13 +15,13 @@ export default function Footer() {
         </div>
         
         <div className="footer-column">
-          <Link to="/rules" className="footer-link">
+          <Link to="/theory" className="footer-link" aria-label="Правила ПДД">
             <FaBook className="footer-icon" />
             <span>Правила ПДД</span>
           </Link>
-          <Link to="/exam-info" className="footer-link">
-            <FaInfoCircle className="footer-icon" />
-            <span>Об экзамене</span>
+          <Link to="/about-exam" className="footer-link" aria-label="Об экзамене">
+            <FaClipboardList className="footer-icon" />
+            <span>О экзамене</span>
           </Link>
         </div>
         

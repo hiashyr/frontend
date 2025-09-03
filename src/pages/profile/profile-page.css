@@ -588,11 +588,11 @@
 }
 
 .attempt-status.passed {
-  color: #4CAF50;
+  color: #2E7D32; /* Darker green for better contrast */
 }
 
 .attempt-status.failed, .attempt-status.unknown {
-  color: #F44336;
+  color: #B71C1C; /* Darker red for better contrast */
 }
 
 .progress-container {
