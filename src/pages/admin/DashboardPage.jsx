@@ -1,11 +1,11 @@
 import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, NavLink } from 'react-router-dom';
 import API from '../../services/api';
 import LoadingSpinner from '../../components/LoadingSpinner';
 import TestStatsCharts from '../../components/admin/TestStatsCharts';
 import './admin.css';
 import { useAuth } from '../../contexts/AuthContext';
-import { FaTimes } from 'react-icons/fa';
+import { FaTimes, FaChartLine, FaClipboardList } from 'react-icons/fa';
 import AdminSidebar from '../../components/admin/AdminSidebar';
 import SmallInfoBlocks from '../../components/admin/SmallInfoBlocks';
 
@@ -73,6 +73,23 @@ export default function DashboardPage() {
               </div>
           )}
         </div>
+      </div>
+
+      <div className="mobile-nav">
+        <NavLink
+          to="/admin/dashboard"
+          className={({isActive}) => isActive ? 'active' : ''}
+          aria-label="Дашборд"
+        >
+          <FaChartLine className="icon" />
+        </NavLink>
+        <NavLink
+          to="/admin/questions"
+          className={({isActive}) => isActive ? 'active' : ''}
+          aria-label="Вопросы"
+        >
+          <FaClipboardList className="icon" />
+        </NavLink>
       </div>
     </div>
   );

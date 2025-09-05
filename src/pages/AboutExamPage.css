@@ -53,6 +53,6 @@
     align-items: center;
   }
   .about-exam-image {
-    margin-top: 0;
+    display: none; /* Hide the image on mobile devices */
   }
 }

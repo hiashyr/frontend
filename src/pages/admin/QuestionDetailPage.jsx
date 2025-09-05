@@ -1,11 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import { useNavigate, useParams, Link } from 'react-router-dom';
+import { useNavigate, useParams, Link, NavLink } from 'react-router-dom';
 import API from '../../services/api';
 import LoadingSpinner from '../../components/LoadingSpinner';
 import { useAuth } from '../../contexts/AuthContext';
 import { useNotification } from '../../contexts/NotificationContext';
-import { FaTimes, FaEdit, FaTrash, FaSave, FaCheck, FaTimes as FaClose } from 'react-icons/fa';
-import AdminSidebar from '../../components/admin/AdminSidebar';
+import { FaTimes, FaEdit, FaTrash, FaSave, FaCheck, FaTimes as FaClose, FaChartLine, FaClipboardList } from 'react-icons/fa';
 import './admin.css';
 
 const QuestionDetailPage = () => {
@@ -225,6 +224,23 @@ const QuestionDetailPage = () => {
             </div>
           </div>
         </div>
+      </div>
+
+      <div className="mobile-nav">
+        <NavLink
+          to="/admin/dashboard"
+          className={({isActive}) => isActive ? 'active' : ''}
+          aria-label="Дашборд"
+        >
+          <FaChartLine className="icon" />
+        </NavLink>
+        <NavLink
+          to="/admin/questions"
+          className={({isActive}) => isActive ? 'active' : ''}
+          aria-label="Вопросы"
+        >
+          <FaClipboardList className="icon" />
+        </NavLink>
       </div>
     </div>
   );

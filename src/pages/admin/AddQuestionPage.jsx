@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, NavLink } from 'react-router-dom';
 import API from '../../services/api';
 import { useNotification } from '../../contexts/NotificationContext';
 import { useAuth } from '../../contexts/AuthContext';
 import LoadingSpinner from '../../components/LoadingSpinner';
+import { FaChartLine, FaClipboardList } from 'react-icons/fa';
 import './admin.css';
 
 const AddQuestionPage = () => {
@@ -216,6 +217,23 @@ const AddQuestionPage = () => {
             </button>
           </form>
         </div>
+      </div>
+
+      <div className="mobile-nav">
+        <NavLink
+          to="/admin/dashboard"
+          className={({isActive}) => isActive ? 'active' : ''}
+          aria-label="Дашборд"
+        >
+          <FaChartLine className="icon" />
+        </NavLink>
+        <NavLink
+          to="/admin/questions"
+          className={({isActive}) => isActive ? 'active' : ''}
+          aria-label="Вопросы"
+        >
+          <FaClipboardList className="icon" />
+        </NavLink>
       </div>
     </div>
   );
