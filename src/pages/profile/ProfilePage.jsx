@@ -52,23 +52,6 @@ export default function ProfilePage() {
           <Route path="/" element={<Navigate to="results" replace />} />
         </Routes>
       </div>
-
-      <div className="mobile-nav">
-        <NavLink
-          to="/profile/results"
-          className={({isActive}) => isActive ? 'active' : ''}
-          aria-label="Результаты тестов"
-        >
-          <FaChartLine className="icon" />
-        </NavLink>
-        <NavLink
-          to="/profile/settings"
-          className={({isActive}) => isActive ? 'active' : ''}
-          aria-label="Настройки"
-        >
-          <FaCog className="icon" />
-        </NavLink>
-      </div>
     </div>
   );
 }

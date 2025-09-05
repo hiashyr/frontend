@@ -225,23 +225,6 @@ const QuestionDetailPage = () => {
           </div>
         </div>
       </div>
-
-      <div className="mobile-nav">
-        <NavLink
-          to="/admin/dashboard"
-          className={({isActive}) => isActive ? 'active' : ''}
-          aria-label="Дашборд"
-        >
-          <FaChartLine className="icon" />
-        </NavLink>
-        <NavLink
-          to="/admin/questions"
-          className={({isActive}) => isActive ? 'active' : ''}
-          aria-label="Вопросы"
-        >
-          <FaClipboardList className="icon" />
-        </NavLink>
-      </div>
     </div>
   );
 };
