@@ -15,7 +15,6 @@ export default function HomePage() {
   const [notification, setNotification] = useState(null);
 
   useEffect(() => {
-    console.log('Location state:', location.state);
     if (location.state?.fromLogin) {
       setNotification({
         message: 'Авторизация прошла успешно!',

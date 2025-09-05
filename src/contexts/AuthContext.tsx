@@ -124,24 +124,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, [navigate, fetchUserData, isInitialized]);
 
     const login = async (token: string, userData: User) => {
-    console.log('Login called with:', { token, userData });
     localStorage.setItem('token', token);
     API.defaults.headers.common['Authorization'] = `Bearer ${token}`;
 
     try {
       // Получаем актуальные данные пользователя
       const user = await fetchUserData();
-      console.log('Fetched user data:', user);
 
       // Set the user in the context
       setUser(user);
 
       // Check if the user is an admin and redirect to dashboard
       if (user.role === 'admin') {
-        console.log('Redirecting admin to dashboard');
         window.location.href = '/admin/dashboard';
       } else {
-        console.log('Redirecting user to home');
         window.location.href = '/';
       }
     } catch (err) {
@@ -149,21 +145,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       // В случае ошибки используем данные из ответа авторизации
       const normalizedUser = normalizeAvatarUrl(userData);
       setUser(normalizedUser);
-      console.log('Using fallback user data:', normalizedUser);
 
       // Check if the user is an admin and redirect to dashboard
       if (userData.role === 'admin') {
-        console.log('Redirecting admin to dashboard (fallback)');
         window.location.href = '/admin/dashboard';
       } else {
-        console.log('Redirecting user to home (fallback)');
         window.location.href = '/';
       }
     }
   };
 
   const logout = useCallback(() => {
-    console.log('Logout called');
     localStorage.removeItem('token');
     delete API.defaults.headers.common['Authorization'];
     setUser(null);

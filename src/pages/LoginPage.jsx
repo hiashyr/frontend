@@ -85,7 +85,6 @@ export default function LoginPage() {
     setFormError({ message: '', canResend: false });
 
     try {
-      console.log('Submitting login form', { email: formData.email });
 
       const { data } = await API.post('/users/login', {
         email: formData.email.trim(),
@@ -96,7 +95,6 @@ export default function LoginPage() {
         throw new Error('Неполные данные от сервера');
       }
 
-      console.log('Login successful, data received:', data);
 
       // Save the token and user data
       login(data.token, data.user);
@@ -114,7 +112,6 @@ export default function LoginPage() {
       });
 
     } catch (err) {
-      console.error('Ошибка авторизации:', err);
 
       const serverError = err.response?.data || err;
 

@@ -27,7 +27,6 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
   };
 
   const showNotification = (notification: NotificationType) => {
-    console.log('Showing notification:', notification);
     if (notification) {
       // Если уже есть уведомление, сначала закрываем его
       setIsClosing(true);

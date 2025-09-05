@@ -31,10 +31,8 @@ const AddQuestionPage = () => {
     const fetchTopics = async () => {
       try {
         const { data } = await API.get('/topics?_t=' + new Date().getTime());
-        console.log('Fetched topics data:', data);
         setTopics(data.data);
       } catch (err) {
-        console.error('Ошибка загрузки тем:', err);
         setError('Не удалось загрузить темы');
         showNotification({ message: 'Не удалось загрузить темы', type: 'error' });
       } finally {
@@ -48,7 +46,6 @@ const AddQuestionPage = () => {
   }, [user, navigate, showNotification]);
 
   useEffect(() => {
-    console.log('Topics state updated:', topics);
   }, [topics]);
 
   const handleAddAnswer = () => {
@@ -89,7 +86,6 @@ const AddQuestionPage = () => {
       showNotification({ message: 'Вопрос успешно добавлен', type: 'success' });
       navigate('/admin/questions');
     } catch (err) {
-      console.error('Ошибка добавления вопроса:', err);
       setError('Не удалось добавить вопрос');
       showNotification({ message: 'Не удалось добавить вопрос', type: 'error' });
     } finally {

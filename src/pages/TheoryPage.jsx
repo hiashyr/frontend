@@ -17,11 +17,9 @@ const TheoryPage = () => {
     const fetchTheoryData = async () => {
       try {
         const topicsData = await api.get('/theory-topics');
-        console.log('Topics data:', topicsData);
         setTopics(topicsData);
       } catch (err) {
         setError('Ошибка при загрузке данных теории');
-        console.error('Ошибка при загрузке данных теории:', err);
       } finally {
         setLoading(false);
       }

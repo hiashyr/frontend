@@ -2,7 +2,7 @@ import { useState, useRef } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { useNotification } from '../../contexts/NotificationContext';
 import API from '../../services/api';
-import defaultAvatar from '../../assets/default-avatar.png';
+import defaultAvatar from '../../assets/default-avatar.jpg';
 import { FiUpload, FiUser } from 'react-icons/fi';
 import './AvatarUpload.css'; // Создайте этот файл для стилей
 

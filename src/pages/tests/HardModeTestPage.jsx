@@ -174,8 +174,6 @@ export default function HardModeTestPage() {
   }
 
   const currentQuestion = testData.questions[currentQuestionIndex];
-  // Для отладки: смотрим, что приходит в imageUrl
-  console.log('imageUrl:', currentQuestion.imageUrl);
   const minutes = Math.floor(timeLeft / 60);
   const seconds = timeLeft % 60;
 
@@ -210,7 +208,6 @@ export default function HardModeTestPage() {
                 alt="Иллюстрация к вопросу" 
                 className="question-image"
                 onError={(e) => {
-                  console.error('Failed to load question image:', currentQuestion.imageUrl);
                   e.target.style.display = 'none';
                 }}
               />

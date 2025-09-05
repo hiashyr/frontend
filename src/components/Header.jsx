@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom';
 import { FaBook, FaClipboardList, FaUserPlus } from 'react-icons/fa';
 import { useEffect, useState, useCallback } from 'react';
 import { useAuth } from '../contexts/AuthContext';
-import defaultAvatar from '../assets/default-avatar.png';
+import defaultAvatar from '../assets/default-avatar.jpg';
 import './Header.css';
 
 export default function Header() {
@@ -22,8 +22,6 @@ export default function Header() {
   }, []);
 
   useEffect(() => {
-    console.log('Current avatar URL:', user?.avatarUrl);
-    console.log('Processed avatar URL:', getAvatarUrl(user?.avatarUrl));
     if (user?.avatarUrl) {
       const newAvatarSrc = getAvatarUrl(user.avatarUrl);
       
@@ -46,7 +44,6 @@ export default function Header() {
   const handleAvatarError = useCallback((e) => {
     e.currentTarget.src = defaultAvatar;
     // Можно добавить логирование ошибки
-    console.error('Failed to load avatar:', e.target.src);
   }, []);
 
   return (

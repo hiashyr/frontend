@@ -3,7 +3,7 @@ import { useAuth } from '../../contexts/AuthContext';
 import { useNotification } from '../../contexts/NotificationContext';
 import examModeImage from '../../assets/Exam-img.jpg';
 import themesModeImage from '../../assets/Themes-img.jpg';
-import hardModeImage from '../../assets/Hard-img.png';
+import hardModeImage from '../../assets/Hard-img.jpg';
 
 export default function ChoseMode() {
   const { user } = useAuth();

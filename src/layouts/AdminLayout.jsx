@@ -10,8 +10,7 @@ export default function AdminLayout() {
 
   useEffect(() => {
     if (!isLoading && user?.role !== 'admin') {
-      console.log('Access denied for:', user);
-    }
+      }
   }, [user, isLoading]);
 
   if (isLoading) return <LoadingSpinner fullPage />;
