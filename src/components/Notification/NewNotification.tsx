@@ -22,17 +22,20 @@ const NewNotification: React.FC<NewNotificationProps> = ({
   icon,
   isClosing = false
 }) => {
-  // Защита от пустого сообщения
-  if (!message) return null;
-
   useEffect(() => {
+    // Защита от пустого сообщения - проверяем внутри useEffect
+    if (!message) return;
+
     // Автоматическое закрытие через 3 секунды
     const timer = setTimeout(() => {
       onClose();
     }, 3000);
 
     return () => clearTimeout(timer);
-  }, [onClose]);
+  }, [message, onClose]); // Добавили message в зависимости
+
+  // Защита от пустого сообщения - теперь после всех хуков
+  if (!message) return null;
 
   return (
     <div
