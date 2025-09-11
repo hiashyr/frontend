@@ -17,6 +17,10 @@ export default function RegisterPage() {
   });
 
   const [error, setError] = useState('');
+  const [formError, setFormError] = useState({
+    message: '',
+    canResend: false
+  });
   const [isLoading, setIsLoading] = useState(false);
   const [registrationSuccess, setRegistrationSuccess] = useState(false);
   const [registeredEmail, setRegisteredEmail] = useState('');
@@ -134,6 +138,7 @@ export default function RegisterPage() {
     if (!validateForm()) return;
 
     setIsLoading(true);
+    setFormError({ message: '', canResend: false });
     try {
       const response = await API.post('/users/register', {
         email: formData.email,
@@ -147,12 +152,34 @@ export default function RegisterPage() {
       }
     } catch (err) {
       console.error('Registration error:', err);
-      setError(err?.message ||
-               err?.error === 'EMAIL_EXISTS'
-                 ? 'Этот email уже зарегистрирован'
-                 : 'Ошибка регистрации');
+      const serverError = err.response?.data || err;
+      setFormError({
+        message: (err?.code === 'ECONNABORTED' || err?.code === 'ETIMEDOUT')
+                  ? 'Сервер недоступен. Пожалуйста, попробуйте позже.'
+                  : serverError?.error === 'EMAIL_EXISTS'
+                    ? 'Этот email уже зарегистрирован'
+                    : serverError?.status === 500
+                      ? 'Внутренняя ошибка сервера'
+                      : 'Ошибка регистрации',
+        canResend: false
+      });
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const handleResendEmail = async () => {
+    try {
+      await API.post('/auth/resend-verification', { email: formData.email });
+      setFormError({
+        message: 'Письмо отправлено повторно',
+        type: 'success'
+      });
+    } catch (err) {
+      setFormError({
+        message: 'Ошибка при повторной отправке письма',
+        canResend: false
+      });
     }
   };
 
@@ -239,7 +266,21 @@ export default function RegisterPage() {
               </div>
             ))}
 
-            {error && <div className="form-error" role="alert">{error}</div>}
+            {formError.message && (
+              <div className="form-error" role="alert">
+                {formError.message}
+                {formError.canResend && (
+                  <button
+                    type="button"
+                    onClick={handleResendEmail}
+                    className="resend-button"
+                    disabled={isLoading}
+                  >
+                    Отправить письмо повторно
+                  </button>
+                )}
+              </div>
+            )}
 
             <button
               type="submit"

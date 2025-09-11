@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { api } from '../services/api';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
+import LoadingSpinner from '../components/LoadingSpinner';
 import './TheoryPage.css';
 
 const TheoryPage = () => {
@@ -19,7 +20,7 @@ const TheoryPage = () => {
         const topicsData = await api.get('/theory-topics');
         setTopics(topicsData);
       } catch (err) {
-        setError('Ошибка при загрузке данных теории');
+        setError('Ошибка при загрузке данных');
       } finally {
         setLoading(false);
       }
@@ -95,11 +96,30 @@ const TheoryPage = () => {
   };
 
   if (loading) {
-    return <div>Загрузка...</div>;
+    return (
+      <div className="page-container">
+        <Header />
+        <main className="theory-main">
+          <LoadingSpinner fullPage={true} text="Загрузка данных теории..." />
+        </main>
+        <Footer />
+      </div>
+    );
   }
 
   if (error) {
-    return <div>{error}</div>;
+    return (
+      <div className="page-container">
+        <Header />
+        <main className="theory-main">
+          <div className="error-container">
+            <h2>Ошибка при загрузке данных</h2>
+            <p>Не удалось загрузить данные теории. Пожалуйста, попробуйте позже или проверьте соединение с интернетом.</p>
+          </div>
+        </main>
+        <Footer />
+      </div>
+    );
   }
 
   const handleScrollToSection = (id) => {

@@ -52,7 +52,7 @@ API.interceptors.response.use(
     if (!error.response) {
       console.error('Network error:', error);
       return Promise.reject({ 
-        error: 'NETWORK_ERROR', 
+        error: 'Внутренняя ошибка сервера', 
         message: error.message 
       });
     }
