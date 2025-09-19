@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import { useNavigate, useParams, Link, NavLink } from 'react-router-dom';
+import { useNavigate, useParams, } from 'react-router-dom';
 import API from '../../services/api';
 import LoadingSpinner from '../../components/LoadingSpinner';
 import { useAuth } from '../../contexts/AuthContext';
 import { useNotification } from '../../contexts/NotificationContext';
-import { FaTimes, FaEdit, FaTrash, FaSave, FaCheck, FaTimes as FaClose, FaChartLine, FaClipboardList } from 'react-icons/fa';
+import { FaEdit, FaTrash, FaSave } from 'react-icons/fa';
 import './admin.css';
 
 const QuestionDetailPage = () => {
@@ -103,6 +103,17 @@ const QuestionDetailPage = () => {
     } else {
       setQuestion({ ...question, [field]: value });
     }
+  };
+
+  const handleAddAnswer = () => {
+    const newAnswer = { text: '', isCorrect: false };
+    setQuestion({ ...question, answers: [...question.answers, newAnswer] });
+  };
+
+  const handleRemoveAnswer = (index) => {
+    const newAnswers = [...question.answers];
+    newAnswers.splice(index, 1);
+    setQuestion({ ...question, answers: newAnswers });
   };
 
   if (!user || user.role !== 'admin') {
@@ -212,6 +223,12 @@ const QuestionDetailPage = () => {
                         }
                       />
                       <label>Правильный ответ</label>
+                      <button
+                        onClick={() => handleRemoveAnswer(index)}
+                        className="remove-answer-button"
+                      >
+                        Удалить
+                      </button>
                     </>
                   ) : (
                     <>
@@ -221,6 +238,11 @@ const QuestionDetailPage = () => {
                   )}
                 </div>
               ))}
+              {isEditing && (
+                <button onClick={handleAddAnswer} className="add-answer-button">
+                  Добавить ответ
+                </button>
+              )}
             </div>
           </div>
         </div>

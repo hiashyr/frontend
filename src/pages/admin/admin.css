@@ -386,6 +386,20 @@
   background-color: #28045f; /* Darker shade on hover */
 }
 
+.remove-answer-button {
+  background-color: #dc3545; /* Red color for remove button */
+  color: white;
+  border: none;
+  padding: 5px 10px;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.remove-answer-button:hover {
+  background-color: #c82333; /* Darker red on hover */
+}
+
 .switch {
   position: relative;
   display: inline-block;
